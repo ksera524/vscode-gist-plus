@@ -6,7 +6,7 @@
   "publisher": "ksera524",
   "repository": "https://github.com/ksera524/vscode-gist-plus",
   "engines": {
-    "vscode": "^1.51.0"
+    "vscode": "^1.57.0"
   },
   "categories": [
     "Other"
