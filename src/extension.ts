@@ -2,14 +2,13 @@ import {
   commands,
   Disposable,
   ExtensionContext,
-  extensions,
   window,
   workspace
 } from 'vscode';
 
 import { init as initCommands } from './commands';
 import { GistCommands, StatusBarCommands } from './commands/extension-commands';
-import { DEBUG, EXTENSION_ID } from './constants';
+import { DEBUG } from './constants';
 import * as gists from './gists';
 import { init as initListeners } from './listeners';
 import { Levels, logger } from './logger';
@@ -34,9 +33,11 @@ export function activate(context: ExtensionContext): void {
   profiles.configure({ state: context.globalState });
 
   const config = workspace.getConfiguration('gist');
-  const extension = extensions.getExtension(EXTENSION_ID) as Extension;
   const previousVersion = context.globalState.get('version');
-  const currentVersion = extension.packageJSON.version;
+  const currentVersion =
+    (context.extension && context.extension.packageJSON
+      ? context.extension.packageJSON.version
+      : undefined) || previousVersion;
 
   const extCommands = initCommands(config, {
     gists,

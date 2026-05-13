@@ -12,7 +12,7 @@ class ProfileService {
 
   private constructor() {
     // intentionally left blank
-    this.state = workspace.getConfiguration();
+    this.state = workspace.getConfiguration() as unknown as Memento;
   }
 
   public add(

@@ -4,6 +4,12 @@ Pull requests and contributions are warmly welcome.
 Please follow existing code style and commit message conventions. Also remember to keep documentation
 updated.
 
+## Fork Scope and Attribution
+
+This repository is an unofficial maintenance fork of `kenhowardpdx/vscode-gist`.
+Contributions should preserve compatibility and improve reliability on modern environments.
+Please do not present this project as the original upstream; keep attribution to the original author intact.
+
 **Pull Requests:** You don't need to bump version numbers or modify anything related to releasing.
 
 

@@ -5,6 +5,7 @@ const mockState = {
   get: jest.fn(() => ({
     'existing profile': { active: true, key: '123', url: 'abc' }
   })),
+  keys: jest.fn(() => []),
   update: jest.fn()
 };
 const gh = { GitHub: { active: false, key: 'foo', url: 'http://foo.bar.com' } };

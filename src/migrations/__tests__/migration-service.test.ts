@@ -4,6 +4,7 @@ import { migrations } from '../migration-service';
 
 const state = {
   get: jest.fn(() => ''),
+  keys: jest.fn(() => []),
   update: jest.fn()
 };
 
