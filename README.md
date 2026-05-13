@@ -1,11 +1,15 @@
 # Gist Extension
 
-[![Marketplace Version](https://vsmarketplacebadge.apphb.com/version-short/kenhowardpdx.vscode-gist.svg)](https://marketplace.visualstudio.com/items?itemName=kenhowardpdx.vscode-gist)
-[![Build Status](https://travis-ci.org/kenhowardpdx/vscode-gist.svg?branch=master)](https://travis-ci.org/kenhowardpdx/vscode-gist)
-
-[![Installs](https://vsmarketplacebadge.apphb.com/installs/kenhowardpdx.vscode-gist.svg)](https://marketplace.visualstudio.com/items?itemName=kenhowardpdx.vscode-gist) [![Coverage Status](https://coveralls.io/repos/github/kenhowardpdx/vscode-gist/badge.svg?branch=master)](https://coveralls.io/github/kenhowardpdx/vscode-gist?branch=master)
+[![Marketplace Version](https://vsmarketplacebadge.apphb.com/version-short/ksera524.vscode-gist-plus.svg)](https://marketplace.visualstudio.com/items?itemName=ksera524.vscode-gist-plus)
+[![Installs](https://vsmarketplacebadge.apphb.com/installs/ksera524.vscode-gist-plus.svg)](https://marketplace.visualstudio.com/items?itemName=ksera524.vscode-gist-plus)
 
 Access your GitHub Gists within Visual Studio Code. You can add, edit, and delete public and private gists.
+
+## Fork Notice
+
+This project is an unofficial maintenance fork of [kenhowardpdx/vscode-gist](https://github.com/kenhowardpdx/vscode-gist).
+Original work and copyright belong to [Ken Howard](https://github.com/kenhowardpdx).
+This fork exists to keep the extension usable on modern environments, including Windows 11 and recent VS Code releases.
 
 ## Installation
 
@@ -111,13 +115,18 @@ Here is a list of commands and their mapped keyboard shortcuts
 
 ## Show Your Support
 
-If you'd like to support Gist, please consider the following &mdash; feel free to choose more than one. &#x1F609;
-- [Become a Sponsor](https://www.patreon.com/kenhowardpdx "Become a sponsor on Patreon") &mdash; see [backers](https://github.com/kenhowardpdx/vscode-gist/blob/master/BACKERS.md)
+If you'd like to support this maintenance fork, please consider:
+- [Write a Review](https://marketplace.visualstudio.com/items?itemName=ksera524.vscode-gist-plus#review-details "Write a review")
+- [Star or Fork this repository](https://github.com/ksera524/vscode-gist-plus "Star or fork this repository")
+
+If you'd like to support the original project and author, please consider:
+- [Become a Sponsor](https://www.patreon.com/kenhowardpdx "Become a sponsor on Patreon")
 - [Donations via PayPal](https://www.paypal.me/kenhowardpdx "One-time donations via PayPal")
 - [Donations via Cash App](https://cash.me/$kenhowardpdx "One-time donations via Cash App")
-- [Write a Review](https://marketplace.visualstudio.com/items?itemName=kenhowardpdx.vscode-gist#review-details "Write a review")
-- [Star or Fork me on GitHub](https://github.com/kenhowardpdx/vscode-gist "Star or fork me on GitHub")
-- [Follow me on Twitter](https://twitter.com/kenhowardpdx "Follow me on Twitter")
+- [Star the original repository](https://github.com/kenhowardpdx/vscode-gist "Star the original repository")
 
 ## Maintainer
-vscode-gist is maintained by [Ken Howard](https://github.com/kenhowardpdx).
+
+Original author: [Ken Howard](https://github.com/kenhowardpdx)
+
+Current maintainer of this fork: [ksera524](https://github.com/ksera524)
