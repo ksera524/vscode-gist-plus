@@ -1,7 +1,7 @@
 # Gist Extension
 
-[![Marketplace Version](https://vsmarketplacebadge.apphb.com/version-short/ksera524.vscode-gist-plus.svg)](https://marketplace.visualstudio.com/items?itemName=ksera524.vscode-gist-plus)
-[![Installs](https://vsmarketplacebadge.apphb.com/installs/ksera524.vscode-gist-plus.svg)](https://marketplace.visualstudio.com/items?itemName=ksera524.vscode-gist-plus)
+[![Marketplace Version](https://vsmarketplacebadge.apphb.com/version-short/ksera524.vscode-gist-plus.png)](https://marketplace.visualstudio.com/items?itemName=ksera524.vscode-gist-plus)
+[![Installs](https://vsmarketplacebadge.apphb.com/installs/ksera524.vscode-gist-plus.png)](https://marketplace.visualstudio.com/items?itemName=ksera524.vscode-gist-plus)
 
 Access your GitHub Gists within Visual Studio Code. You can add, edit, and delete public and private gists.
 
