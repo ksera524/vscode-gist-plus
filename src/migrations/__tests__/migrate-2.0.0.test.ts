@@ -5,6 +5,7 @@ import { up } from '../migrate-2.0.0';
 
 const state = {
   get: jest.fn(),
+  keys: jest.fn(() => []),
   update: jest.fn()
 };
 

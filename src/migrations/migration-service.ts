@@ -17,7 +17,7 @@ class MigrationService {
   private static instance?: MigrationService;
 
   private migrations: Migration[] = [];
-  private state: Memento = workspace.getConfiguration();
+  private state: Memento = workspace.getConfiguration() as unknown as Memento;
 
   private constructor() {}
 
