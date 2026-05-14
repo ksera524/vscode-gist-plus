@@ -2,7 +2,7 @@
   "name": "vscode-gist-plus",
   "displayName": "GistPlus",
   "description": "Unofficial maintenance fork of kenhowardpdx/vscode-gist for modern VS Code and Windows 11 compatibility.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "ksera524",
   "repository": "https://github.com/ksera524/vscode-gist-plus",
   "engines": {
