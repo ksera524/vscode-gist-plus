@@ -48,8 +48,7 @@ class MigrationService {
         }
       });
     } catch (err) {
-      // tslint:disable-next-line: no-unsafe-any
-      error = err;
+      error = err instanceof Error ? err : new Error('unknown migration error');
     }
 
     cb(error, { migrated });

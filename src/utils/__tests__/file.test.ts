@@ -49,8 +49,34 @@ describe('File Tests', () => {
         filename: 'mocked-text-document.md',
         id: '1111',
         language: 'unknown',
-        path: '/var/folders/T/vscode_gist_1111_random_string/mocked-text-document.md'
+        path: '/var/folders/T/vscode_gist_1111_random_string'
       });
+    });
+
+    test('should use editor language when editor is provided', () => {
+      expect.assertions(1);
+
+      const result = extractTextDocumentDetails(
+        {
+          fileName:
+            '/var/folders/T/vscode_gist_1111_random_string/mocked-text-document.md',
+          getText: jest.fn(() => 'mocked-content')
+        } as any,
+        { document: { languageId: 'typescript' } } as any
+      );
+
+      expect(result.language).toBe('typescript');
+    });
+
+    test('should return empty id and filename when path does not match gist pattern', () => {
+      expect.assertions(1);
+
+      const result = extractTextDocumentDetails({
+        fileName: '/var/folders/T/not-a-gist/temp.txt',
+        getText: jest.fn(() => 'mocked-content')
+      } as any);
+
+      expect(result).toMatchObject({ filename: '', id: '' });
     });
   });
   describe('#getFileName', () => {
@@ -60,6 +86,20 @@ describe('File Tests', () => {
       };
 
       expect(getFileName(filePath)).toStrictEqual('test-file.txt');
+    });
+
+    test('should return fallback when basename is empty', () => {
+      expect.assertions(1);
+
+      expect(getFileName({ fileName: '' } as any, 'fallback.txt')).toBe(
+        'fallback.txt'
+      );
+    });
+
+    test('should return unknown.txt when basename and fallback are empty', () => {
+      expect.assertions(1);
+
+      expect(getFileName({ fileName: '' } as any)).toBe('unknown.txt');
     });
   });
 });

@@ -33,14 +33,14 @@ const prepareError = (err: Error): Error => {
     return new Error(
       (JSON.parse(err && err.message) || { message: 'unkown' }).message
     );
-  } catch (_) {
+  } catch {
     return err;
   }
 };
 // tslint:enable:no-any
 
 const formatGist = (gist: unknown): Gist => {
-  if (typeof gist != 'object') {
+  if (typeof gist !== 'object') {
     // TODO: consider throwing an error
     return <Gist>{};
   }

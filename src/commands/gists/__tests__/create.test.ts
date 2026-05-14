@@ -33,15 +33,23 @@ const executeCommandSpy = jest.spyOn(commands, 'executeCommand');
 
 describe('create gist', () => {
   let createFn: CommandFn;
+  const configGetMock = jest.fn();
   beforeEach(() => {
     const gists = { createGist: createGistMock };
     const insights = { exception: jest.fn() };
     const logger = { error: errorMock };
     createFn = create(
-      { get: jest.fn() },
+      { get: configGetMock },
       { gists, insights, logger } as any,
       utilsMock as any
     )[1];
+    configGetMock.mockImplementation((key: string) => {
+      if (key === 'maxFiles') {
+        return 10;
+      }
+
+      return false;
+    });
     (<any>window).activeTextEditor = undefined;
   });
   afterEach(() => {
@@ -116,5 +124,70 @@ describe('create gist', () => {
 
     expect(errorMock.mock.calls).toHaveLength(1);
     expect(error).toBeUndefined();
+  });
+
+  test('uses selection when there is an active selection', async () => {
+    expect.assertions(2);
+    (utilsMock.input.prompt as jest.Mock).mockImplementation(
+      (_msg: string, defaultValue: string) => Promise.resolve(defaultValue)
+    );
+
+    const selection = { isEmpty: false };
+    const codeBlock = {
+      fileName: `${TMP_DIRECTORY_PREFIX}_123456789abcdefg_random_string/test-file-name.md`,
+      getText: jest.fn(() => 'selected-text')
+    };
+
+    (<any>window).activeTextEditor = {
+      document: codeBlock,
+      selection
+    };
+
+    await createFn();
+
+    expect(codeBlock.getText).toHaveBeenCalledWith(selection);
+    expect(createGistMock).toHaveBeenCalledWith(
+      { 'test-file-name.md': { content: 'selected-text' } },
+      undefined,
+      true
+    );
+  });
+
+  test('defaults to private gist when defaultPrivate is true', async () => {
+    expect.assertions(1);
+    configGetMock.mockImplementation((key: string) => {
+      if (key === 'maxFiles') {
+        return 10;
+      }
+
+      return key === 'defaultPrivate';
+    });
+    (utilsMock.input.prompt as jest.Mock).mockImplementation(
+      (msg: string, defaultValue: string) => {
+        if (msg === 'Public? Y = Yes, N = No') {
+          return Promise.resolve('');
+        }
+
+        return Promise.resolve(defaultValue || '');
+      }
+    );
+
+    const codeBlock = {
+      fileName: `${TMP_DIRECTORY_PREFIX}_123456789abcdefg_random_string/test-file-name.md`,
+      getText: jest.fn(() => 'test-file-content')
+    };
+
+    (<any>window).activeTextEditor = {
+      document: codeBlock,
+      selection: { isEmpty: true }
+    };
+
+    await createFn();
+
+    expect(createGistMock).toHaveBeenLastCalledWith(
+      { 'test-file-name.md': { content: 'test-file-content' } },
+      '',
+      false
+    );
   });
 });

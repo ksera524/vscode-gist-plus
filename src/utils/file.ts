@@ -26,7 +26,7 @@ const filesSync = (
 ): string[] => {
   const filePaths: string[] = [];
   for (const filename in files) {
-    if (files.hasOwnProperty(filename)) {
+    if (Object.prototype.hasOwnProperty.call(files, filename)) {
       const { content } = files[filename];
       filePaths.push(fileSync(token, filename, content));
     }

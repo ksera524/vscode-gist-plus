@@ -24,6 +24,14 @@ describe('Notify Tests', () => {
 
       expect(showErrorSpy.mock.calls[0][0]).toBe('GIST ERROR: Foo > Bar');
     });
+
+    test('should ignore undefined messages', () => {
+      expect.assertions(1);
+
+      notify.error('Foo', undefined as unknown as string, 'Bar');
+
+      expect(showErrorSpy.mock.calls[0][0]).toBe('GIST ERROR: Foo > Bar');
+    });
   });
   describe('#info', () => {
     test('should notify user of info', () => {
