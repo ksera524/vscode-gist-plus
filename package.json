@@ -17,9 +17,38 @@
     "theme": "dark"
   },
   "activationEvents": [
-    "*"
+    "onStartupFinished",
+    "onCommand:extension.gist.open",
+    "onCommand:extension.gist.openFavorite",
+    "onCommand:extension.gist.create",
+    "onCommand:extension.gist.openInBrowser",
+    "onCommand:extension.gist.delete",
+    "onCommand:extension.gist.deleteFile",
+    "onCommand:extension.gist.add",
+    "onCommand:extension.gist.insert",
+    "onCommand:extension.gist.insertFavorite",
+    "onCommand:extension.profile.select",
+    "onCommand:extension.resetState"
   ],
   "main": "./out/extension",
+  "files": [
+    "out/constants.js",
+    "out/extension.js",
+    "out/commands/**",
+    "out/gists/**",
+    "out/listeners/**",
+    "out/logger/**",
+    "out/migrations/**",
+    "out/profiles/**",
+    "out/utils/**",
+    "images/**",
+    "icon.png",
+    "package.json",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "BACKERS.md"
+  ],
   "contributes": {
     "configuration": {
       "type": "object",
