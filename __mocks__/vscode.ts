@@ -1,12 +1,24 @@
 // tslint:disable:no-any
 module.exports = {
-  Position: jest.fn(),
-  Range: jest.fn(),
+  Position: jest.fn(function Position(
+    this: any,
+    line: number,
+    character: number
+  ) {
+    this.line = line;
+    this.character = character;
+  }),
+  Range: jest.fn(function Range(this: any, start: any, end: any) {
+    this.start = start;
+    this.end = end;
+  }),
   StatusBarAlignment: {
     Left: true
   },
   Uri: { parse: jest.fn((url: string) => url) },
-  WorkspaceEdit: jest.fn(() => ({ replace: jest.fn() })),
+  WorkspaceEdit: jest.fn(function WorkspaceEdit(this: any) {
+    this.replace = jest.fn();
+  }),
   commands: {
     executeCommand: jest.fn()
   },

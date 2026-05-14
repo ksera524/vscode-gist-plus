@@ -1,7 +1,7 @@
 // tslint:disable:no-any no-magic-numbers no-unsafe-any
 import { window, workspace } from 'vscode';
 
-import { openGist, selectFile } from '../utils';
+import { insertText, openGist, selectFile } from '../utils';
 
 const showQuickPickSpy = jest.spyOn(window, 'showQuickPick');
 const showTextDocumentSpy = jest.spyOn(window, 'showTextDocument');
@@ -73,6 +73,25 @@ describe('Gist Command Utils Tests', () => {
         ])
       );
     });
+
+    test('it should throw if no file is selected', async () => {
+      expect.assertions(1);
+      showQuickPickSpy.mockResolvedValueOnce(undefined);
+
+      await expect(
+        openGist(
+          {
+            fileCount: 2,
+            files: {
+              'file-one.md': { content: 'test-file-one' },
+              'file-two.md': { content: 'test-file-two' }
+            },
+            id: '123test'
+          } as any,
+          1
+        )
+      ).rejects.toThrow('File not found');
+    });
   });
   describe('#selectFile', () => {
     test('it accepts a list of gist files', async () => {
@@ -105,6 +124,40 @@ describe('Gist Command Utils Tests', () => {
         content: 'test-content-one',
         filename: 'file-one.md'
       });
+    });
+
+    test('it returns undefined when user cancels selection', async () => {
+      expect.assertions(1);
+      showQuickPickSpy.mockResolvedValueOnce(undefined);
+
+      const file = await selectFile({
+        files: {
+          'file-one.md': { content: 'test-content-one' },
+          'file-two.md': { content: 'test-content-two' }
+        }
+      } as any);
+
+      expect(file).toBeUndefined();
+    });
+  });
+
+  describe('#insertText', () => {
+    test('returns false when workspace edit is not applied', async () => {
+      expect.assertions(1);
+      const applyEditSpy = jest
+        .spyOn(workspace, 'applyEdit')
+        .mockResolvedValueOnce(false);
+
+      const editor = {
+        document: { uri: 'file://test.ts' },
+        selection: {
+          start: { line: 1, character: 2 },
+          end: { line: 1, character: 2 }
+        }
+      } as any;
+
+      await expect(insertText(editor, 'hello world')).resolves.toBe(false);
+      applyEditSpy.mockRestore();
     });
   });
 });

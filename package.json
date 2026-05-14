@@ -6,7 +6,7 @@
   "publisher": "ksera524",
   "repository": "https://github.com/ksera524/vscode-gist-plus",
   "engines": {
-    "vscode": "^1.57.0"
+    "vscode": "^1.119.0"
   },
   "categories": [
     "Other"
@@ -119,34 +119,31 @@
   },
   "scripts": {
     "compile": "tsc -p tsconfig.prod.json",
-    "lint": "eslint src --ext ts",
+    "lint": "eslint src",
     "prettier": "prettier --config .prettierrc.json --list-different 'src/**/*.ts'",
     "release": "standard-version",
-    "test:integration": "npm run compile && node ./node_modules/vscode/bin/test",
-    "test:unit": "jest --coverage --silent",
-    "test:watch": "npm run test:unit -- --watchAll",
+    "test:integration": "npm run compile && node ./scripts/run-integration-tests.js",
+    "test:unit": "vitest run --coverage --silent",
+    "test:watch": "vitest",
     "test": "npm run lint && npm run prettier && npm run test:unit",
     "vscode:prepublish": "npm run compile",
     "watch": "tsc -watch -p tsconfig.prod.json"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.23",
-    "@types/node": "14.x",
-    "@types/tmp": "0.0.33",
-    "@types/vscode": "^1.57.0",
-    "@typescript-eslint/eslint-plugin": "^4.26.0",
-    "@typescript-eslint/parser": "^4.26.0",
-    "coveralls": "^3.0.4",
-    "eslint": "^7.27.0",
-    "jest": "^27.0.6",
-    "prettier": "^2.3.2",
-    "standard-version": "^9.3.0",
-    "ts-jest": "^27.0.3",
-    "typescript": "^3.5.1"
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^25.7.0",
+    "@types/vscode": "^1.120.0",
+    "@typescript-eslint/eslint-plugin": "^8.59.3",
+    "@typescript-eslint/parser": "^8.59.3",
+    "@vitest/coverage-v8": "^4.1.6",
+    "@vscode/test-electron": "^2.5.2",
+    "eslint": "^10.3.0",
+    "prettier": "^3.8.3",
+    "standard-version": "^9.5.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.6"
   },
   "dependencies": {
-    "@octokit/rest": "^18.6.6",
-    "tmp": "0.0.33",
-    "vscode-extension-telemetry": "^0.1.7"
+    "@octokit/rest": "^22.0.1"
   }
 }

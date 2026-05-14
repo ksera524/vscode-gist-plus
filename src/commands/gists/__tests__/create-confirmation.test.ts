@@ -1,5 +1,5 @@
 // tslint:disable:no-any no-magic-numbers no-unsafe-any no-unbound-method
-import { window } from 'vscode';
+import { commands, env, window } from 'vscode';
 
 import { createConfirmation } from '../create-confirmation';
 
@@ -19,10 +19,13 @@ const errorMock = jest.fn();
 
 describe('create gist', () => {
   let createConfirmationFn: CommandFn;
+  const executeCommandSpy = jest.spyOn(commands, 'executeCommand');
+
   beforeEach(() => {
     const gists = { createGist: jest.fn() };
     const insights = { exception: jest.fn() };
     const logger = { error: errorMock, info: jest.fn() };
+    (env as any).clipboard = { writeText: jest.fn() };
     createConfirmationFn = createConfirmation(
       { get: jest.fn() },
       { gists, insights, logger } as any,
@@ -61,5 +64,30 @@ describe('create gist', () => {
 
     expect(errorMock.mock.calls).toHaveLength(1);
     expect(error).toBeUndefined();
+  });
+
+  test('executes open in browser command when selected', async () => {
+    expect.assertions(1);
+    (<any>window).showInformationMessage.mockResolvedValueOnce({
+      title: 'Open in Browser'
+    });
+
+    await createConfirmationFn(gistMock as any);
+
+    expect(executeCommandSpy).toHaveBeenCalledWith(
+      'extension.gist.openInBrowser',
+      gistMock
+    );
+  });
+
+  test('copies gist url when selected', async () => {
+    expect.assertions(1);
+    (<any>window).showInformationMessage.mockResolvedValueOnce({
+      title: 'Copy Gist URL to Clipboard'
+    });
+
+    await createConfirmationFn(gistMock as any);
+
+    expect((env as any).clipboard.writeText).toHaveBeenCalledWith(gistMock.url);
   });
 });

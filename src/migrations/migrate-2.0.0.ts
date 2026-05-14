@@ -19,8 +19,7 @@ export const up = (
       state.update('profiles', { [name]: { active, key, url } });
     }
   } catch (err) {
-    // tslint:disable-next-line: no-unsafe-any
-    error = err ? err : new Error('unknown migration error');
+    error = err instanceof Error ? err : new Error('unknown migration error');
   }
 
   cb(error);

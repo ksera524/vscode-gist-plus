@@ -3,17 +3,8 @@ import { window } from 'vscode';
 const prompt = async (
   message: string,
   defaultValue?: string
-): Promise<string> => {
-  try {
-    const input =
-      (await window.showInputBox({ prompt: message, value: defaultValue })) ||
-      '';
-
-    return input;
-  } catch (err) {
-    throw err;
-  }
-};
+): Promise<string> =>
+  (await window.showInputBox({ prompt: message, value: defaultValue })) || '';
 
 const format = (list: Gist[]): QuickPickGist[] =>
   list.map((item, i, j) => ({

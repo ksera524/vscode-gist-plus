@@ -25,39 +25,34 @@ describe('GistService tests', () => {
     });
   });
   describe('#create', () => {
-    test('create a gist', (done) => {
+    test('create a gist', async () => {
       expect.assertions(1);
 
-      testGists
-        .create({
-          description: 'test',
-          files: { 'fileone.txt': { content: 'test content' } },
-          public: true
-        })
-        .then((response: any) => {
-          expect(response.data.description).toStrictEqual('test');
-          done();
-        });
+      const response = await testGists.create({
+        description: 'test',
+        files: { 'fileone.txt': { content: 'test content' } },
+        public: true
+      });
+
+      expect(response.data.description).toStrictEqual('test');
     });
   });
   describe('#list', () => {
-    test('list gists', (done) => {
+    test('list gists', async () => {
       expect.assertions(1);
 
-      testGists.list().then((response: any) => {
-        expect(response.data[0].description).toBe('gist one');
-        done();
-      });
+      const response = await testGists.list();
+
+      expect(response.data[0].description).toBe('gist one');
     });
   });
   describe('#listStarred', () => {
-    test('list starred gists', (done) => {
+    test('list starred gists', async () => {
       expect.assertions(1);
 
-      testGists.listStarred().then((response: any) => {
-        expect(response.data[0].description).toBe('gist one');
-        done();
-      });
+      const response = await testGists.listStarred();
+
+      expect(response.data[0].description).toBe('gist one');
     });
   });
   describe('#get', () => {
