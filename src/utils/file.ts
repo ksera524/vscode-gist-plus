@@ -1,15 +1,14 @@
 import * as fs from 'fs';
+import * as os from 'os';
 import * as path from 'path';
-import * as tmp from 'tmp';
 import { TextDocument, TextEditor } from 'vscode';
 
 import { TMP_DIRECTORY_PREFIX } from '../constants';
 
 const dirSync = (token: string): string => {
   const prefix = `${[TMP_DIRECTORY_PREFIX, token].join('_')}_`;
-  const directory = tmp.dirSync({ prefix });
 
-  return directory.name;
+  return fs.mkdtempSync(path.join(os.tmpdir(), prefix));
 };
 
 const fileSync = (token: string, filename: string, content: string): string => {
