@@ -1,4 +1,3 @@
-// tslint:disable:no-any no-magic-numbers no-unsafe-any
 import { window, workspace } from 'vscode';
 
 import { insertText, openGist, selectFile } from '../utils';
@@ -18,7 +17,7 @@ describe('Gist Command Utils Tests', () => {
     test('it should open a gist in an editor', async () => {
       expect.assertions(3);
 
-      const mockDoc: any = {
+      const mockDoc = {
         getText(): string {
           return 'test-file-one';
         }
@@ -32,7 +31,7 @@ describe('Gist Command Utils Tests', () => {
         fileCount: 1,
         files: { 'file-one.md': { content: 'test-file-one' } },
         id: '123test'
-      } as any);
+      });
 
       expect(showTextDocumentSpy).toHaveBeenCalledTimes(1);
       expect(openTextDocumentMock).toHaveBeenCalledWith(
@@ -42,8 +41,8 @@ describe('Gist Command Utils Tests', () => {
     });
     test('it should ask user to select file of multiple file gist', async () => {
       expect.assertions(1);
-      showQuickPickSpy.mockImplementationOnce((items: any) =>
-        Promise.resolve(items[0])
+      showQuickPickSpy.mockImplementationOnce((items) =>
+        Promise.resolve(items[1])
       );
 
       await openGist(
@@ -54,7 +53,7 @@ describe('Gist Command Utils Tests', () => {
             'file-two.md': { content: 'test-file-two' }
           },
           id: '123test'
-        } as any,
+        },
         1
       );
 
@@ -87,7 +86,7 @@ describe('Gist Command Utils Tests', () => {
               'file-two.md': { content: 'test-file-two' }
             },
             id: '123test'
-          } as any,
+          },
           1
         )
       ).rejects.toThrow('File not found');
@@ -102,22 +101,23 @@ describe('Gist Command Utils Tests', () => {
           'file-one.md': { content: 'test-content' },
           'file-two.md': { content: 'test-content' }
         }
-      } as any);
+      });
 
       expect(showQuickPickSpy).toHaveBeenCalledTimes(1);
     });
     test('it returns a single file when the user selects one', async () => {
       expect.assertions(2);
-      showQuickPickSpy.mockImplementationOnce((items: any) =>
-        Promise.resolve(items[0])
-      );
+      showQuickPickSpy.mockResolvedValueOnce({
+        description: '',
+        label: 'file-one.md'
+      });
 
       const file = await selectFile({
         files: {
           'file-one.md': { content: 'test-content-one' },
           'file-two.md': { content: 'test-content-two' }
         }
-      } as any);
+      });
 
       expect(showQuickPickSpy).toHaveBeenCalledTimes(1);
       expect(file).toStrictEqual({
@@ -135,9 +135,26 @@ describe('Gist Command Utils Tests', () => {
           'file-one.md': { content: 'test-content-one' },
           'file-two.md': { content: 'test-content-two' }
         }
-      } as any);
+      });
 
       expect(file).toBeUndefined();
+    });
+
+    test('it throws when selected file has no content', async () => {
+      expect.assertions(1);
+      showQuickPickSpy.mockResolvedValueOnce({
+        description: '',
+        label: 'file-two.md'
+      });
+
+      await expect(
+        selectFile({
+          files: {
+            'file-one.md': { content: 'ok' },
+            'file-two.md': {} as { content: string }
+          }
+        })
+      ).rejects.toThrow('Invalid gist file content');
     });
   });
 
@@ -154,7 +171,7 @@ describe('Gist Command Utils Tests', () => {
           start: { line: 1, character: 2 },
           end: { line: 1, character: 2 }
         }
-      } as any;
+      };
 
       await expect(insertText(editor, 'hello world')).resolves.toBe(false);
       applyEditSpy.mockRestore();

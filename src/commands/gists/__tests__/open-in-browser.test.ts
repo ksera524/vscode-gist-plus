@@ -1,7 +1,7 @@
-// tslint:disable:no-any no-magic-numbers no-unsafe-any
 import { commands, window } from 'vscode';
 
 import { TMP_DIRECTORY_PREFIX } from '../../../constants';
+import type { Gist } from '../../../types/gist';
 import { openInBrowser } from '../open-in-browser';
 
 jest.mock('fs');
@@ -31,18 +31,28 @@ const getGistsMock = jest.fn(() => [
     url: 'gist-two-url'
   }
 ]);
-const getGistMock = jest.fn((id: string) =>
-  Promise.resolve({
-    createdAt: new Date(),
-    description: 'some markdown file',
-    fileCount: 1,
-    files: { 'file-one.md': { content: 'test' } },
-    id,
-    name: 'test',
-    public: true,
-    updatedAt: new Date(),
-    url: 'test-url'
-  })
+const getGistMock = jest.fn(
+  (id: string): Promise<Gist> =>
+    Promise.resolve({
+      createdAt: new Date().toISOString(),
+      description: 'some markdown file',
+      fileCount: 1,
+      files: {
+        'file-one.md': {
+          content: 'test',
+          filename: 'file-one.md',
+          language: 'markdown',
+          raw_url: '',
+          size: 4,
+          type: 'text/markdown'
+        }
+      },
+      id,
+      name: 'test',
+      public: true,
+      updatedAt: new Date().toISOString(),
+      url: 'test-url'
+    })
 );
 const utilsMock = jest.genMockFromModule<Utils>('../../../utils');
 const errorMock = jest.fn();
@@ -52,15 +62,49 @@ const executeCommandSpy = jest.spyOn(commands, 'executeCommand');
 describe('open favorite gist', () => {
   let openInBrowserFn: CommandFn;
   beforeEach(() => {
-    const gists = { getGists: getGistsMock, getGist: getGistMock };
+    const gists: GistService = {
+      configure: () => {
+        // noop
+      },
+      createGist: async () => ({}) as Gist,
+      deleteFile: async () => {
+        // noop
+      },
+      deleteGist: async () => {
+        // noop
+      },
+      getGist: getGistMock,
+      getGists: async () => getGistsMock(),
+      updateGist: async () => ({}) as Gist
+    };
     const insights = { exception: jest.fn() };
-    const logger = { error: errorMock, info: jest.fn() };
+    const logger: Logger = {
+      debug: jest.fn(),
+      error: errorMock,
+      info: jest.fn(),
+      setLevel: jest.fn(),
+      setOutput: jest.fn(),
+      warn: jest.fn()
+    };
+    const profiles: Profiles = {
+      add: async () => {
+        // noop
+      },
+      configure: () => {
+        // noop
+      },
+      get: () => undefined,
+      getAll: () => [],
+      reset: async () => {
+        // noop
+      }
+    };
     openInBrowserFn = openInBrowser(
       { get: jest.fn() },
-      { gists, insights, logger } as any,
-      utilsMock as any
+      { gists, insights, logger, profiles } as Services,
+      utilsMock
     )[1];
-    (<any>window).activeTextEditor = undefined;
+    (window as { activeTextEditor: unknown }).activeTextEditor = undefined;
   });
   afterEach(() => {
     jest.clearAllMocks();
@@ -76,9 +120,9 @@ describe('open favorite gist', () => {
   test('it opens a browser', async () => {
     expect.assertions(2);
 
-    (<any>utilsMock.files.extractTextDocumentDetails).mockImplementation(
-      () => ({ id: '123456789abcdefg', url: 'test-url' })
-    );
+    (
+      utilsMock.files.extractTextDocumentDetails as jest.Mock
+    ).mockImplementation(() => ({ id: '123456789abcdefg', url: 'test-url' }));
 
     const codeBlock = {
       fileName: `${TMP_DIRECTORY_PREFIX}_123456789abcdefg_random_string/test-file-name.md`,
@@ -90,7 +134,7 @@ describe('open favorite gist', () => {
       selection: { isEmpty: true }
     };
 
-    (<any>window).activeTextEditor = editor;
+    (window as { activeTextEditor: unknown }).activeTextEditor = editor;
 
     await openInBrowserFn();
 

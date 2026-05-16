@@ -1,4 +1,3 @@
-// tslint:disable:no-any no-magic-numbers no-unsafe-any
 import { commands, window } from 'vscode';
 
 import { select } from '../select';
@@ -21,8 +20,8 @@ describe('select profile', () => {
     const profiles = { add: addMock, getAll: getAllMock };
     selectFn = select(
       { get: jest.fn() },
-      { insights, logger, profiles } as any,
-      utilsMock as any
+      { insights, logger, profiles } as Services,
+      utilsMock as Services
     )[1];
   });
   afterEach(() => {
