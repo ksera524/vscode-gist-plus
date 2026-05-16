@@ -50,10 +50,10 @@ describe('open gist', () => {
     const logger = { error: errorMock, info: jest.fn() };
     openFn = open(
       { get: jest.fn() },
-      { gists, insights, logger } as any,
-      utilsMock as any
+      { gists, insights, logger } as unknown,
+      utilsMock as unknown
     )[1];
-    (<any>window).activeTextEditor = undefined;
+    (<unknown>window).activeTextEditor = undefined;
   });
   afterEach(() => {
     jest.clearAllMocks();
@@ -61,7 +61,7 @@ describe('open gist', () => {
   test('what happens when errors occur', async () => {
     expect.assertions(1);
 
-    (<any>utilsMock.input.quickPick).mockRejectedValueOnce(false);
+    (<unknown>utilsMock.input.quickPick).mockRejectedValueOnce(false);
 
     await openFn();
     expect(errorMock.mock.calls.length).toBe(1);
@@ -71,10 +71,10 @@ describe('open gist', () => {
 
     await openFn();
 
-    expect((<any>utilsMock.input.quickPick).mock.calls.length).toBe(1);
+    expect((<unknown>utilsMock.input.quickPick).mock.calls.length).toBe(1);
 
-    const firstGist = (<any>utilsMock.input.quickPick).mock.calls[0][0][0];
-    const secondGist = (<any>utilsMock.input.quickPick).mock.calls[0][0][1];
+    const firstGist = (<unknown>utilsMock.input.quickPick).mock.calls[0][0][0];
+    const secondGist = (<unknown>utilsMock.input.quickPick).mock.calls[0][0][1];
 
     expect(firstGist.name).toBe('gist one');
     expect(secondGist.name).toBe('gist two');
@@ -82,7 +82,7 @@ describe('open gist', () => {
   test('it opens a document', async () => {
     expect.assertions(1);
 
-    (<any>utilsMock.input.quickPick).mockResolvedValue({
+    (<unknown>utilsMock.input.quickPick).mockResolvedValue({
       block: {
         id: '123'
       },

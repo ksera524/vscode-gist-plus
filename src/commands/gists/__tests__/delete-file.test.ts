@@ -14,12 +14,12 @@ describe('open gist', () => {
     const logger = { error: errorMock, info: jest.fn() };
     deleteFileFn = deleteFile(
       { get: jest.fn() },
-      { gists, insights, logger } as any,
-      utilsMock as any
+      { gists, insights, logger } as unknown,
+      utilsMock as unknown
     )[1];
-    (<any>window).activeTextEditor = undefined;
-    (<any>window).visibleTextEditors = [];
-    (<any>utilsMock.files.extractTextDocumentDetails).mockReturnValue({
+    (<unknown>window).activeTextEditor = undefined;
+    (<unknown>window).visibleTextEditors = [];
+    (<unknown>utilsMock.files.extractTextDocumentDetails).mockReturnValue({
       filename: 'foo',
       id: '123'
     });
@@ -30,9 +30,9 @@ describe('open gist', () => {
   test('what happens when errors occur', async () => {
     expect.assertions(1);
 
-    (<any>window).activeTextEditor = { document: {} };
+    (<unknown>window).activeTextEditor = { document: {} };
 
-    (<any>utilsMock.input.prompt).mockResolvedValueOnce('DELETE');
+    (<unknown>utilsMock.input.prompt).mockResolvedValueOnce('DELETE');
     deleteFileMock.mockRejectedValueOnce(false);
 
     await deleteFileFn();
@@ -41,8 +41,8 @@ describe('open gist', () => {
   test('it deletes the open file', async () => {
     expect.assertions(1);
 
-    (<any>window).activeTextEditor = { document: { gist: { id: '123' } } };
-    (<any>utilsMock.input.prompt).mockResolvedValueOnce('DELETE');
+    (<unknown>window).activeTextEditor = { document: { gist: { id: '123' } } };
+    (<unknown>utilsMock.input.prompt).mockResolvedValueOnce('DELETE');
 
     await deleteFileFn();
 

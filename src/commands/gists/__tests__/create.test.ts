@@ -39,8 +39,8 @@ describe('create gist', () => {
     const logger = { error: errorMock };
     createFn = create(
       { get: configGetMock },
-      { gists, insights, logger } as any,
-      utilsMock as any
+      { gists, insights, logger } as unknown,
+      utilsMock as unknown
     )[1];
     configGetMock.mockImplementation((key: string) => {
       if (key === 'maxFiles') {
@@ -49,7 +49,7 @@ describe('create gist', () => {
 
       return false;
     });
-    (<any>window).activeTextEditor = undefined;
+    (<unknown>window).activeTextEditor = undefined;
   });
   afterEach(() => {
     jest.clearAllMocks();
@@ -72,7 +72,7 @@ describe('create gist', () => {
       selection: { isEmpty: true }
     };
 
-    (<any>window).activeTextEditor = editor;
+    (<unknown>window).activeTextEditor = editor;
 
     await createFn();
 
@@ -101,7 +101,7 @@ describe('create gist', () => {
       selection: { isEmpty: true }
     };
 
-    (<any>window).activeTextEditor = editor;
+    (<unknown>window).activeTextEditor = editor;
 
     await createFn();
 
@@ -141,8 +141,8 @@ describe('create gist', () => {
       selection: { isEmpty: true }
     };
 
-    (window as any).activeTextEditor = undefined;
-    (window as any).visibleTextEditors = [fallbackEditor];
+    (window as unknown).activeTextEditor = undefined;
+    (window as unknown).visibleTextEditors = [fallbackEditor];
 
     await createFn();
 
@@ -165,7 +165,7 @@ describe('create gist', () => {
       getText: jest.fn(() => 'selected-text')
     };
 
-    (<any>window).activeTextEditor = {
+    (<unknown>window).activeTextEditor = {
       document: codeBlock,
       selection
     };
@@ -204,7 +204,7 @@ describe('create gist', () => {
       getText: jest.fn(() => 'test-file-content')
     };
 
-    (<any>window).activeTextEditor = {
+    (<unknown>window).activeTextEditor = {
       document: codeBlock,
       selection: { isEmpty: true }
     };

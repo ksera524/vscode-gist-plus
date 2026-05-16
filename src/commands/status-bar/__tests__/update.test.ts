@@ -12,9 +12,9 @@ const createStatusBarItemMock = {
 const utilsMock = jest.genMockFromModule<Utils>('../../../utils');
 const debugMock = jest.fn();
 const errorMock = jest.fn();
-const getMock = jest.fn(() => ({ name: 'foo' }) as any);
+const getMock = jest.fn(() => ({ name: 'foo' }) as unknown);
 
-createStatusBarItem.mockImplementation(() => createStatusBarItemMock as any);
+createStatusBarItem.mockImplementation(() => createStatusBarItemMock as unknown);
 
 describe('update status bar', () => {
   let updateFn: CommandFn;
@@ -24,7 +24,7 @@ describe('update status bar', () => {
     const logger = { debug: debugMock, error: errorMock };
     updateFn = update(
       { get: jest.fn() },
-      { insights, logger, profiles } as any,
+      { insights, logger, profiles } as unknown,
       utilsMock
     )[1];
   });

@@ -59,10 +59,10 @@ describe('open gist', () => {
     const logger = { debug: jest.fn(), error: errorMock, info: jest.fn() };
     insertFn = insert(
       { get: jest.fn() },
-      { gists, insights, logger } as any,
-      utilsMock as any
+      { gists, insights, logger } as unknown,
+      utilsMock as unknown
     )[1];
-    window.activeTextEditor = <any>{
+    window.activeTextEditor = <unknown>{
       document: { getText: jest.fn() },
       selection: { isEmpty: true }
     };
@@ -73,7 +73,7 @@ describe('open gist', () => {
   test('should log error when no editor', async () => {
     expect.assertions(1);
 
-    (<any>window.activeTextEditor) = undefined;
+    (<unknown>window.activeTextEditor) = undefined;
 
     await insertFn();
     expect(errorMock.mock.calls.length).toBe(1);
@@ -81,7 +81,7 @@ describe('open gist', () => {
   test('what happens when errors occur', async () => {
     expect.assertions(1);
 
-    (<any>utilsMock.input.quickPick).mockRejectedValueOnce(false);
+    (<unknown>utilsMock.input.quickPick).mockRejectedValueOnce(false);
 
     await insertFn();
     expect(errorMock.mock.calls.length).toBe(1);
@@ -91,7 +91,7 @@ describe('open gist', () => {
 
     await insertFn();
 
-    expect((<any>utilsMock).input.quickPick).toHaveBeenCalledWith([
+    expect((<unknown>utilsMock).input.quickPick).toHaveBeenCalledWith([
       expect.any(Object),
       expect.any(Object)
     ]);
@@ -99,7 +99,7 @@ describe('open gist', () => {
   test('it should query for the users selected gist', async () => {
     expect.assertions(1);
 
-    (<any>utilsMock.input.quickPick).mockResolvedValueOnce({
+    (<unknown>utilsMock.input.quickPick).mockResolvedValueOnce({
       block: { id: '123' }
     });
 
@@ -110,7 +110,7 @@ describe('open gist', () => {
   test('it should prompt the user to select a file if more than one is available', async () => {
     expect.assertions(1);
 
-    (<any>utilsMock.input.quickPick).mockResolvedValueOnce({
+    (<unknown>utilsMock.input.quickPick).mockResolvedValueOnce({
       block: { id: '123' }
     });
 

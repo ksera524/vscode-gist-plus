@@ -31,7 +31,7 @@ describe('Gist Command Utils Tests', () => {
         fileCount: 1,
         files: { 'file-one.md': { content: 'test-file-one' } },
         id: '123test'
-      } as any);
+      } as unknown);
 
       expect(showTextDocumentSpy).toHaveBeenCalledTimes(1);
       expect(openTextDocumentMock).toHaveBeenCalledWith(
@@ -53,7 +53,7 @@ describe('Gist Command Utils Tests', () => {
             'file-two.md': { content: 'test-file-two' }
           },
           id: '123test'
-        } as any,
+        } as unknown,
         1
       );
 
@@ -86,7 +86,7 @@ describe('Gist Command Utils Tests', () => {
               'file-two.md': { content: 'test-file-two' }
             },
             id: '123test'
-          } as any,
+          } as unknown,
           1
         )
       ).rejects.toThrow('File not found');
@@ -101,7 +101,7 @@ describe('Gist Command Utils Tests', () => {
           'file-one.md': { content: 'test-content' },
           'file-two.md': { content: 'test-content' }
         }
-      } as any);
+      } as unknown);
 
       expect(showQuickPickSpy).toHaveBeenCalledTimes(1);
     });
@@ -116,7 +116,7 @@ describe('Gist Command Utils Tests', () => {
           'file-one.md': { content: 'test-content-one' },
           'file-two.md': { content: 'test-content-two' }
         }
-      } as any);
+      } as unknown);
 
       expect(showQuickPickSpy).toHaveBeenCalledTimes(1);
       expect(file).toStrictEqual({
@@ -134,7 +134,7 @@ describe('Gist Command Utils Tests', () => {
           'file-one.md': { content: 'test-content-one' },
           'file-two.md': { content: 'test-content-two' }
         }
-      } as any);
+      } as unknown);
 
       expect(file).toBeUndefined();
     });
@@ -153,7 +153,7 @@ describe('Gist Command Utils Tests', () => {
           start: { line: 1, character: 2 },
           end: { line: 1, character: 2 }
         }
-      } as any;
+      } as unknown;
 
       await expect(insertText(editor, 'hello world')).resolves.toBe(false);
       applyEditSpy.mockRestore();

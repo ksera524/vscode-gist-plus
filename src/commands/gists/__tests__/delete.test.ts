@@ -14,12 +14,12 @@ describe('open gist', () => {
     const logger = { error: errorMock, info: jest.fn() };
     deleteFn = deleteCommand(
       { get: jest.fn() },
-      { gists, insights, logger } as any,
-      utilsMock as any
+      { gists, insights, logger } as unknown,
+      utilsMock as unknown
     )[1];
-    (<any>window).activeTextEditor = undefined;
-    (<any>window).visibleTextEditors = [];
-    (<any>utilsMock.files.extractTextDocumentDetails).mockReturnValue({
+    (<unknown>window).activeTextEditor = undefined;
+    (<unknown>window).visibleTextEditors = [];
+    (<unknown>utilsMock.files.extractTextDocumentDetails).mockReturnValue({
       id: '123'
     });
   });
@@ -29,7 +29,7 @@ describe('open gist', () => {
   test('should log error when no editor', async () => {
     expect.assertions(1);
 
-    (<any>window.activeTextEditor) = undefined;
+    (<unknown>window.activeTextEditor) = undefined;
 
     await deleteFn();
     expect(errorMock.mock.calls.length).toBe(1);
@@ -37,7 +37,7 @@ describe('open gist', () => {
   test('what happens when errors occur', async () => {
     expect.assertions(1);
 
-    (<any>window).activeTextEditor = { document: {} };
+    (<unknown>window).activeTextEditor = { document: {} };
 
     deleteGistMock.mockRejectedValueOnce(false);
 
@@ -47,7 +47,7 @@ describe('open gist', () => {
   test('it deletes the open gist', async () => {
     expect.assertions(1);
 
-    (<any>window).activeTextEditor = { document: { gist: { id: '123' } } };
+    (<unknown>window).activeTextEditor = { document: { gist: { id: '123' } } };
 
     await deleteFn();
 
