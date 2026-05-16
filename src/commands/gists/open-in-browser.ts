@@ -11,7 +11,10 @@ const openInBrowser: CommandInitializer = (
 
   const command = GistCommands.OpenInBrowser;
 
-  const commandFn = async (gist?: Gist): Promise<void> => {
+  const isGist = (value: unknown): value is Gist =>
+    typeof value === 'object' && value !== null && 'url' in value;
+
+  const commandFn = async (gistValue?: unknown): Promise<void> => {
     const getGistUrlFromOpenEditor = (): Promise<string> => {
       const editor = window.activeTextEditor;
 
@@ -26,6 +29,7 @@ const openInBrowser: CommandInitializer = (
 
     const gistName = '';
     try {
+      const gist = isGist(gistValue) ? gistValue : undefined;
       const url = (gist && gist.url) || (await getGistUrlFromOpenEditor());
       commands.executeCommand('vscode.open', Uri.parse(url));
     } catch (err) {

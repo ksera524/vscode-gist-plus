@@ -16,8 +16,16 @@ const createConfirmation: CommandInitializer = (
     CopyGistURL = 'Copy Gist URL to Clipboard'
   }
 
-  const commandFn = async (gist: Gist): Promise<void> => {
+  const isGist = (value: unknown): value is Gist =>
+    typeof value === 'object' && value !== null && 'url' in value;
+
+  const commandFn = async (gistValue: unknown): Promise<void> => {
     try {
+      if (!isGist(gistValue)) {
+        throw new Error('Invalid gist payload');
+      }
+
+      const gist = gistValue;
       const { url } = gist;
       logger.info(`Now presenting ${gist.description}`);
 
