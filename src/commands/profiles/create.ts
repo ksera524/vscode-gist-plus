@@ -51,7 +51,7 @@ const create: CommandInitializer = (
         return;
       }
 
-      profiles.add(name, key, url, true);
+      await profiles.add(name, key, url, true);
       await commands.executeCommand(StatusBarCommands.Update);
       await commands.executeCommand(GistCommands.UpdateAccessKey);
 

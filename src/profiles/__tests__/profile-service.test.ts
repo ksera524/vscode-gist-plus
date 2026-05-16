@@ -21,10 +21,10 @@ describe('Profile Service Tests', () => {
     jest.clearAllMocks();
   });
   describe('#add', () => {
-    test('should add a profile', () => {
+    test('should add a profile', async () => {
       expect.assertions(3);
 
-      profiles.add('test name', 'test key', 'test url', true);
+      await profiles.add('test name', 'test key', 'test url', true);
 
       expect(mockState.get).toHaveBeenCalledTimes(1);
       expect(mockState.update).toHaveBeenCalledTimes(1);
@@ -82,10 +82,10 @@ describe('Profile Service Tests', () => {
     });
   });
   describe('#reset', () => {
-    test('should reset profiles', () => {
+    test('should reset profiles', async () => {
       expect.assertions(1);
 
-      profiles.reset();
+      await profiles.reset();
 
       expect(mockState.update).toHaveBeenCalledWith('profiles', undefined);
     });

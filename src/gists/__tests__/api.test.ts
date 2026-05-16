@@ -86,15 +86,33 @@ describe('Gists API Tests', () => {
       expect(gist.id).toBe('123abc');
     });
 
-    test('returns empty gist object for invalid gist payload', async () => {
+    test('throws for invalid gist payload', async () => {
       expect.assertions(1);
       const getSpy = jest
         .spyOn(gists, 'get')
         .mockResolvedValueOnce({ data: 'not-an-object' } as Services);
 
-      const gist: any = await getGist('bad-id');
+      await expect(getGist('bad-id')).rejects.toThrow('Invalid gist payload');
+      getSpy.mockRestore();
+    });
 
-      expect(gist).toStrictEqual({});
+    test('throws for payloads with missing files field', async () => {
+      expect.assertions(1);
+      const getSpy = jest.spyOn(gists, 'get').mockResolvedValueOnce({
+        data: {
+          created_at: new Date().toString(),
+          description: 'broken gist',
+          html_url: 'https://foo.bar',
+          id: 'broken-id',
+          public: true,
+          updated_at: new Date().toString(),
+          url: 'https://api.github.com/gists/broken-id'
+        }
+      } as Services);
+
+      await expect(getGist('broken-id')).rejects.toThrow(
+        'Invalid gist payload'
+      );
       getSpy.mockRestore();
     });
 

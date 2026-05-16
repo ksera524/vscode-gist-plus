@@ -68,6 +68,7 @@ const mockedGists = {
         created_at: new Date().toString(),
         description: params.description,
         files: params.files,
+        html_url: 'https://foo.bar',
         id: gistId,
         public: params.public,
         updated_at: new Date().toString()

@@ -37,9 +37,9 @@ interface Profile extends RawProfile {
 }
 
 interface Profiles {
-  add(name: string, key: string, url?: string, active?: boolean): void;
+  add(name: string, key: string, url?: string, active?: boolean): Promise<void>;
   configure(options: { state: Memento }): void;
   get(): Profile | undefined;
   getAll(): Profile[];
-  reset(): void;
+  reset(): Promise<void>;
 }

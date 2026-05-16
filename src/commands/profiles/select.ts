@@ -20,7 +20,7 @@ const select: CommandInitializer = (
       const allProfiles = profiles.getAll();
 
       if (!allProfiles || allProfiles.length === 0) {
-        commands.executeCommand(ProfileCommands.Create);
+        await commands.executeCommand(ProfileCommands.Create);
 
         return;
       }
@@ -49,11 +49,11 @@ const select: CommandInitializer = (
       if (selected && selected.label !== 'Create New Profile') {
         const { key, name, url } = selected.profile;
 
-        profiles.add(name, key, url, true);
-        commands.executeCommand(StatusBarCommands.Update);
-        commands.executeCommand(GistCommands.UpdateAccessKey);
+        await profiles.add(name, key, url, true);
+        await commands.executeCommand(StatusBarCommands.Update);
+        await commands.executeCommand(GistCommands.UpdateAccessKey);
       } else {
-        commands.executeCommand(ProfileCommands.Create);
+        await commands.executeCommand(ProfileCommands.Create);
       }
     } catch (err) {
       const error: Error = err as Error;

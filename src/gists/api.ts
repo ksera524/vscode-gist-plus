@@ -19,14 +19,36 @@ interface GistResponse {
   created_at: string;
   description: string;
   files: { [x: string]: ApiGistFile };
-  html_url: string;
+  html_url?: string;
   id: string;
   public: boolean;
   updated_at: string;
-  url: string;
+  url?: string;
 }
 
 type GistsResponse = GistResponse[];
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null;
+
+const isGistResponse = (value: unknown): value is GistResponse => {
+  if (!isRecord(value)) {
+    return false;
+  }
+
+  const hasUrl =
+    typeof value['html_url'] === 'string' || typeof value['url'] === 'string';
+
+  return (
+    typeof value['created_at'] === 'string' &&
+    typeof value['description'] === 'string' &&
+    isRecord(value['files']) &&
+    hasUrl &&
+    typeof value['id'] === 'string' &&
+    typeof value['public'] === 'boolean' &&
+    typeof value['updated_at'] === 'string'
+  );
+};
 
 const prepareError = (err: Error): Error => {
   try {
@@ -39,11 +61,10 @@ const prepareError = (err: Error): Error => {
 };
 
 const formatGist = (gist: unknown): Gist => {
-  if (typeof gist !== 'object') {
-    // TODO: consider throwing an error
-    return <Gist>{};
+  if (!isGistResponse(gist)) {
+    throw new Error('Invalid gist payload');
   }
-  const g = <GistResponse>gist;
+  const g = gist;
   const files: { [x: string]: GistFile } = Object.keys(g.files).reduce<{
     [x: string]: GistFile;
   }>((acc, key) => {
@@ -57,19 +78,19 @@ const formatGist = (gist: unknown): Gist => {
 
     const normalized: GistFile = { content: file.content };
 
-    if (file.filename !== undefined) {
+    if (typeof file.filename === 'string') {
       normalized.filename = file.filename;
     }
-    if (file.language !== undefined) {
+    if (typeof file.language === 'string') {
       normalized.language = file.language;
     }
-    if (file.raw_url !== undefined) {
+    if (typeof file.raw_url === 'string') {
       normalized.raw_url = file.raw_url;
     }
-    if (file.size !== undefined) {
+    if (typeof file.size === 'number') {
       normalized.size = file.size;
     }
-    if (file.type !== undefined) {
+    if (typeof file.type === 'string') {
       normalized.type = file.type;
     }
 
@@ -95,7 +116,7 @@ const formatGist = (gist: unknown): Gist => {
       month: 'long',
       year: 'numeric'
     }).format(new Date(g.updated_at)),
-    url: g.html_url
+    url: g.html_url || g.url || ''
   };
 };
 
@@ -107,9 +128,7 @@ const toGistsResponse = (value: unknown): GistsResponse => {
     return [];
   }
 
-  return value.filter(
-    (item): item is GistResponse => typeof item === 'object' && item !== null
-  );
+  return value.filter(isGistResponse);
 };
 
 const getGist = async (id: string): Promise<Gist> => {
