@@ -1,6 +1,6 @@
-
 import { window } from 'vscode';
 
+import type { Gist } from '../../types/gist';
 import { prompt, quickPick } from '../input';
 
 const showInputBoxSpy = jest.spyOn(window, 'showInputBox');
@@ -27,13 +27,28 @@ describe('Input Tests', () => {
     test('should show quickpick pane', async () => {
       expect.assertions(2);
 
-      const mockGist = {
-        files: { 'file-one.txt': { content: '' } },
+      const mockGist: Gist = {
+        createdAt: '2024-01-01T00:00:00Z',
+        description: 'test gist',
+        fileCount: 1,
+        files: {
+          'file-one.txt': {
+            content: '',
+            filename: 'file-one.txt',
+            language: 'text',
+            raw_url: '',
+            size: 0,
+            type: 'text/plain'
+          }
+        },
         id: '123',
-        name: 'test gist'
+        name: 'test gist',
+        public: true,
+        updatedAt: '2024-01-01T00:00:00Z',
+        url: 'https://example.com/gist/123'
       };
 
-      await quickPick([mockGist as any]);
+      await quickPick([mockGist]);
 
       expect(showQuickPickSpy).toHaveBeenCalledTimes(1);
       expect(showQuickPickSpy).toHaveBeenCalledWith([
