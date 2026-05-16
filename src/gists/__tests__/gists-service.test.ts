@@ -1,4 +1,5 @@
 import fc from 'fast-check';
+import { Octokit } from '@octokit/rest';
 
 import { gists } from '../gists-service';
 
@@ -8,13 +9,36 @@ describe('GistService tests', () => {
     testGists = gists;
   });
   describe('#configure', () => {
-    test('accepts arbitrary valid endpoint urls (PBT)', async () => {
+    test('applies configure options to Octokit construction (PBT)', async () => {
+      const octokitConstructor = Octokit as unknown as {
+        mock: { calls: unknown[][] };
+      };
+
       await fc.assert(
         fc.asyncProperty(fc.webUrl(), async (url) => {
-          testGists.configure({ url });
+          const key = `key-${Math.random().toString(36).slice(2, 8)}`;
+          const rejectUnauthorized = false;
 
-          const response = await testGists.list();
-          expect(Array.isArray(response.data)).toBe(true);
+          testGists.configure({ key, rejectUnauthorized, url });
+
+          const configCall =
+            octokitConstructor.mock.calls[
+              octokitConstructor.mock.calls.length - 1
+            ];
+
+          expect(configCall).toBeDefined();
+          const options = configCall?.[0] as {
+            agent?: { options?: { rejectUnauthorized?: boolean } };
+            auth?: string;
+            baseUrl?: string;
+          };
+
+          expect(options.baseUrl).toBe(url);
+          expect(options.auth).toBe(key);
+          expect(options.agent).toBeDefined();
+          expect(options.agent?.options?.rejectUnauthorized).toBe(
+            rejectUnauthorized
+          );
         })
       );
     });

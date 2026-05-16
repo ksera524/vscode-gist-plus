@@ -7,6 +7,7 @@ const gistsResponseData = [
     description: 'gist one',
     files: {
       'one.md': {
+        content: 'one',
         filename: 'one.md',
         language: 'markdown',
         raw_url: 'https://foo.bar/api/test123/1',
@@ -14,6 +15,7 @@ const gistsResponseData = [
         type: 'text'
       },
       'two.md': {
+        content: 'two',
         filename: 'two.md',
         language: 'markdown',
         raw_url: 'https://foo.bar/api/test123/2',
@@ -31,6 +33,7 @@ const gistsResponseData = [
     description: 'gist two',
     files: {
       'one.md': {
+        content: 'one',
         filename: 'one.md',
         language: 'markdown',
         raw_url: 'https://foo.bar/api/test123/1',
@@ -38,6 +41,7 @@ const gistsResponseData = [
         type: 'text'
       },
       'two.md': {
+        content: 'two',
         filename: 'two.md',
         language: 'markdown',
         raw_url: 'https://foo.bar/api/test123/2',

@@ -98,6 +98,31 @@ describe('Gists API Tests', () => {
       getSpy.mockRestore();
     });
 
+    test('throws when gist file content is missing', async () => {
+      expect.assertions(1);
+      const getSpy = jest.spyOn(gists, 'get').mockResolvedValueOnce({
+        data: {
+          created_at: new Date().toString(),
+          description: 'broken gist',
+          files: {
+            'bad.md': {
+              filename: 'bad.md'
+            }
+          },
+          html_url: 'https://foo.bar',
+          id: 'broken-id',
+          public: true,
+          updated_at: new Date().toString(),
+          url: 'https://api.github.com/gists/broken-id'
+        }
+      } as Services);
+
+      await expect(getGist('broken-id')).rejects.toThrow(
+        'Invalid gist file content'
+      );
+      getSpy.mockRestore();
+    });
+
     test('formats json error messages', async () => {
       expect.assertions(1);
       const getSpy = jest

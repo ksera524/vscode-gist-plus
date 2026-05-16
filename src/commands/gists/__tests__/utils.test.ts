@@ -42,7 +42,7 @@ describe('Gist Command Utils Tests', () => {
     test('it should ask user to select file of multiple file gist', async () => {
       expect.assertions(1);
       showQuickPickSpy.mockImplementationOnce((items) =>
-        Promise.resolve(items[0])
+        Promise.resolve(items[1])
       );
 
       await openGist(
@@ -107,9 +107,10 @@ describe('Gist Command Utils Tests', () => {
     });
     test('it returns a single file when the user selects one', async () => {
       expect.assertions(2);
-      showQuickPickSpy.mockImplementationOnce((items) =>
-        Promise.resolve(items[0])
-      );
+      showQuickPickSpy.mockResolvedValueOnce({
+        description: '',
+        label: 'file-one.md'
+      });
 
       const file = await selectFile({
         files: {
@@ -137,6 +138,23 @@ describe('Gist Command Utils Tests', () => {
       });
 
       expect(file).toBeUndefined();
+    });
+
+    test('it throws when selected file has no content', async () => {
+      expect.assertions(1);
+      showQuickPickSpy.mockResolvedValueOnce({
+        description: '',
+        label: 'file-two.md'
+      });
+
+      await expect(
+        selectFile({
+          files: {
+            'file-one.md': { content: 'ok' },
+            'file-two.md': {} as { content: string }
+          }
+        })
+      ).rejects.toThrow('Invalid gist file content');
     });
   });
 

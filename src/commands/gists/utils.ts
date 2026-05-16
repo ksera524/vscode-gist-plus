@@ -33,10 +33,18 @@ const selectFile = async (gist: {
       : await Promise.resolve(files[0]);
 
   return selectedFile
-    ? {
-        content: gist.files[selectedFile.label]?.content || '',
-        filename: selectedFile.label
-      }
+    ? (() => {
+        const selected = gist.files[selectedFile.label];
+
+        if (!selected || typeof selected.content !== 'string') {
+          throw new Error('Invalid gist file content');
+        }
+
+        return {
+          content: selected.content,
+          filename: selectedFile.label
+        };
+      })()
     : undefined;
 };
 

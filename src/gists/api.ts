@@ -51,7 +51,11 @@ const formatGist = (gist: unknown): Gist => {
     if (!file) {
       return acc;
     }
-    const normalized: GistFile = { content: file.content || '' };
+    if (typeof file.content !== 'string') {
+      throw new Error('Invalid gist file content');
+    }
+
+    const normalized: GistFile = { content: file.content };
 
     if (file.filename !== undefined) {
       normalized.filename = file.filename;

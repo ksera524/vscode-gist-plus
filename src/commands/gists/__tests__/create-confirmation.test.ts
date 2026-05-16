@@ -117,6 +117,20 @@ describe('create gist', () => {
     expect(error).toBeUndefined();
   });
 
+  test('logs invalid gist payload object without throwing', async () => {
+    expect.assertions(2);
+
+    let error: Error | undefined;
+    try {
+      await createConfirmationFn({ url: gistMock.url });
+    } catch (err) {
+      error = err as Error;
+    }
+
+    expect(errorMock.mock.calls).toHaveLength(1);
+    expect(error).toBeUndefined();
+  });
+
   test('executes open in browser command when selected', async () => {
     expect.assertions(1);
     showInformationMessageSpy.mockResolvedValueOnce({
