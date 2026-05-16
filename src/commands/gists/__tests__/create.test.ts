@@ -49,7 +49,9 @@ describe('create gist', () => {
 
       return false;
     });
-    (window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }).activeTextEditor = undefined;
+    (
+      window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }
+    ).activeTextEditor = undefined;
   });
   afterEach(() => {
     jest.clearAllMocks();
@@ -72,7 +74,9 @@ describe('create gist', () => {
       selection: { isEmpty: true }
     };
 
-    (window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }).activeTextEditor = editor;
+    (
+      window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }
+    ).activeTextEditor = editor;
 
     await createFn();
 
@@ -101,7 +105,9 @@ describe('create gist', () => {
       selection: { isEmpty: true }
     };
 
-    (window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }).activeTextEditor = editor;
+    (
+      window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }
+    ).activeTextEditor = editor;
 
     await createFn();
 
@@ -114,6 +120,10 @@ describe('create gist', () => {
   test('when something goes wrong do not throw but log', async () => {
     expect.assertions(2);
 
+    createGistMock.mockImplementationOnce(() => {
+      throw new Error('forced create error');
+    });
+
     let error: any;
     try {
       await createFn();
@@ -123,6 +133,29 @@ describe('create gist', () => {
 
     expect(errorMock.mock.calls).toHaveLength(1);
     expect(error).toBeUndefined();
+  });
+
+  test('creates gist with empty content when no editor is available', async () => {
+    expect.assertions(1);
+    (utilsMock.input.prompt as jest.Mock).mockImplementation(
+      (_msg: string, defaultValue: string) =>
+        Promise.resolve(defaultValue || '')
+    );
+
+    (
+      window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }
+    ).activeTextEditor = undefined;
+    (
+      window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }
+    ).visibleTextEditors = [];
+
+    await createFn();
+
+    expect(createGistMock).toHaveBeenCalledWith(
+      { 'untitled.txt': { content: '' } },
+      '',
+      true
+    );
   });
 
   test('uses first visible editor when active editor is unavailable', async () => {
@@ -141,8 +174,12 @@ describe('create gist', () => {
       selection: { isEmpty: true }
     };
 
-    (window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }).activeTextEditor = undefined;
-    (window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }).visibleTextEditors = [fallbackEditor];
+    (
+      window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }
+    ).activeTextEditor = undefined;
+    (
+      window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }
+    ).visibleTextEditors = [fallbackEditor];
 
     await createFn();
 
@@ -165,7 +202,9 @@ describe('create gist', () => {
       getText: jest.fn(() => 'selected-text')
     };
 
-    (window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }).activeTextEditor = {
+    (
+      window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }
+    ).activeTextEditor = {
       document: codeBlock,
       selection
     };
@@ -204,7 +243,9 @@ describe('create gist', () => {
       getText: jest.fn(() => 'test-file-content')
     };
 
-    (window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }).activeTextEditor = {
+    (
+      window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }
+    ).activeTextEditor = {
       document: codeBlock,
       selection: { isEmpty: true }
     };

@@ -17,14 +17,13 @@ const create: CommandInitializer = (
     let gistName = '';
     try {
       const editor = window.activeTextEditor || window.visibleTextEditors[0];
-      if (!editor) {
-        throw new Error('Open a file before creating');
-      }
-      const selection = editor.selection;
-      const content = editor.document.getText(
-        selection.isEmpty ? undefined : selection
-      );
-      const tmpFilename = utils.files.getFileName(editor.document);
+      const tmpFilename = editor
+        ? utils.files.getFileName(editor.document)
+        : 'untitled.txt';
+      const selection = editor?.selection;
+      const content = editor
+        ? editor.document.getText(selection?.isEmpty ? undefined : selection)
+        : '';
       const filename =
         (await utils.input.prompt('Enter filename', tmpFilename)) ||
         tmpFilename;
