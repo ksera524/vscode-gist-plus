@@ -1,4 +1,6 @@
-import { Levels, logger } from '../';
+import fc from 'fast-check';
+
+import { Levels, createLogger, logger } from '../';
 
 const appendLineMock = jest.fn();
 
@@ -170,6 +172,55 @@ describe('Logger tests', () => {
 
         expect(appendLineMock.mock.calls.length).toBe(1);
       });
+    });
+  });
+
+  describe('PBT invariants', () => {
+    test('log output count matches threshold policy (PBT)', async () => {
+      await fc.assert(
+        fc.asyncProperty(
+          fc.constantFrom(Levels.DEBUG, Levels.INFO, Levels.WARN, Levels.ERROR),
+          fc.array(
+            fc.record({
+              method: fc.constantFrom(
+                'debug',
+                'info',
+                'warn',
+                'error' as const
+              ),
+              msg: fc.string({ maxLength: 20 })
+            }),
+            { maxLength: 40 }
+          ),
+          async (level, entries) => {
+            const append = jest.fn();
+            const pbtLogger = createLogger(level);
+            pbtLogger.setOutput({
+              appendLine: append
+            } as unknown as import('vscode').OutputChannel);
+
+            entries.forEach((entry) => {
+              pbtLogger[entry.method](entry.msg);
+            });
+
+            const expectedCount = entries.filter((entry) => {
+              if (entry.method === 'debug') {
+                return level === Levels.DEBUG;
+              }
+              if (entry.method === 'info') {
+                return level <= Levels.INFO;
+              }
+              if (entry.method === 'warn') {
+                return level <= Levels.WARN;
+              }
+
+              return level <= Levels.ERROR;
+            }).length;
+
+            expect(append.mock.calls).toHaveLength(expectedCount);
+          }
+        )
+      );
     });
   });
 });

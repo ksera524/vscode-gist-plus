@@ -1,61 +1,65 @@
 import { Memento, workspace } from 'vscode';
 
-class ProfileService {
-  private state: Memento;
+const createProfileService = (initialState?: Memento): Profiles => {
+  let state =
+    initialState || (workspace.getConfiguration() as unknown as Memento);
 
-  public constructor(state?: Memento) {
-    this.state = state || (workspace.getConfiguration() as unknown as Memento);
-  }
+  const getRawProfiles = (): { [x: string]: RawProfile } =>
+    state.get<{ [x: string]: RawProfile }>('profiles', {});
 
-  public async add(
-    name: string,
-    key: string,
-    url: string = 'https://api.github.com',
-    active: boolean = false
-  ): Promise<void> {
-    const p = this.getRawProfiles();
-    const currentState = Object.keys(p)
-      .map((profile) => ({
-        [profile]: { key: p[profile].key, url: p[profile].url, active: false }
-      }))
-      .reduce((prev, curr) => ({ ...prev, ...curr }), {});
-    await this.state.update('profiles', {
-      ...currentState,
-      [name]: { active, key, url }
-    });
-  }
+  return {
+    add: async (
+      name: string,
+      key: string,
+      url: string = 'https://api.github.com',
+      active: boolean = false
+    ): Promise<void> => {
+      const existingProfiles = getRawProfiles();
+      const currentState = Object.keys(existingProfiles)
+        .map((profile) => ({
+          [profile]: {
+            active: false,
+            key: existingProfiles[profile].key,
+            url: existingProfiles[profile].url
+          }
+        }))
+        .reduce((prev, curr) => ({ ...prev, ...curr }), {});
 
-  public configure(options: { state: Memento }): void {
-    const { state } = options;
+      await state.update('profiles', {
+        ...currentState,
+        [name]: { active, key, url }
+      });
+    },
+    configure: (options: { state: Memento }): void => {
+      state = options.state;
+    },
+    get: (): Profile | undefined => {
+      const rawProfiles = getRawProfiles();
 
-    this.state = state;
-  }
+      return Object.keys(rawProfiles)
+        .map((profileName) => ({
+          active: rawProfiles[profileName].active,
+          key: rawProfiles[profileName].key,
+          name: profileName,
+          url: rawProfiles[profileName].url
+        }))
+        .find((profile) => profile.active);
+    },
+    getAll: (): Profile[] => {
+      const rawProfiles = getRawProfiles();
 
-  public get(): Profile | undefined {
-    const currentProfile = this.getAll().filter((p) => p.active);
+      return Object.keys(rawProfiles).map((profileName) => ({
+        active: rawProfiles[profileName].active,
+        key: rawProfiles[profileName].key,
+        name: profileName,
+        url: rawProfiles[profileName].url
+      }));
+    },
+    reset: async (): Promise<void> => {
+      await state.update('profiles', undefined);
+    }
+  };
+};
 
-    return currentProfile[0] || undefined;
-  }
-
-  public getAll(): Profile[] {
-    const p = this.getRawProfiles();
-
-    return Object.keys(p).map((profileName) => ({
-      active: p[profileName].active,
-      key: p[profileName].key,
-      name: profileName,
-      url: p[profileName].url
-    }));
-  }
-
-  public async reset(): Promise<void> {
-    await this.state.update('profiles', undefined);
-  }
-
-  private getRawProfiles(): { [x: string]: RawProfile } {
-    return this.state.get<{}>('profiles', {});
-  }
-}
-
-export { ProfileService };
-export const profiles = new ProfileService();
+export { createProfileService };
+export const profiles = createProfileService();

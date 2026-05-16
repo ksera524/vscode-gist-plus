@@ -1,3 +1,5 @@
+import fc from 'fast-check';
+
 import { profiles } from '../profile-service';
 
 const mockState = {
@@ -86,6 +88,29 @@ describe('Profile Service Tests', () => {
       profiles.reset();
 
       expect(mockState.update).toHaveBeenCalledWith('profiles', undefined);
+    });
+  });
+
+  describe('PBT invariants', () => {
+    test('getAll size matches raw profile key count (PBT)', async () => {
+      await fc.assert(
+        fc.asyncProperty(
+          fc.dictionary(
+            fc.string({ minLength: 1, maxLength: 12 }),
+            fc.record({
+              active: fc.boolean(),
+              key: fc.string({ minLength: 1, maxLength: 12 }),
+              url: fc.webUrl()
+            })
+          ),
+          async (rawProfiles) => {
+            mockState.get.mockReturnValue(rawProfiles);
+            expect(profiles.getAll()).toHaveLength(
+              Object.keys(rawProfiles).length
+            );
+          }
+        )
+      );
     });
   });
 });

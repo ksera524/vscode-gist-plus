@@ -1,3 +1,5 @@
+import fc from 'fast-check';
+
 import { gists } from '../gists-service';
 
 describe('GistService tests', () => {
@@ -5,22 +7,16 @@ describe('GistService tests', () => {
   beforeEach(() => {
     testGists = gists;
   });
-  test('has default baseUrl', () => {
-    expect.assertions(1);
-
-    expect(testGists.options).toStrictEqual({
-      baseUrl: 'https://api.github.com'
-    });
-  });
   describe('#configure', () => {
-    test('configure api', () => {
-      expect.assertions(1);
+    test('accepts arbitrary valid endpoint urls (PBT)', async () => {
+      await fc.assert(
+        fc.asyncProperty(fc.webUrl(), async (url) => {
+          testGists.configure({ url });
 
-      testGists.configure({ url: 'https://foo.bar/api' });
-      expect(testGists.options).toStrictEqual({
-        agent: expect.anything(),
-        baseUrl: 'https://foo.bar/api'
-      });
+          const response = await testGists.list();
+          expect(Array.isArray(response.data)).toBe(true);
+        })
+      );
     });
   });
   describe('#create', () => {

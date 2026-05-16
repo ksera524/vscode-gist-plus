@@ -8,64 +8,52 @@ export enum Levels {
   WARN = 2,
   ERROR = 3
 }
-class Logger {
-  public static getInstance = (): Logger => {
-    if (!Logger.instance) {
-      Logger.instance = new Logger(LOGGER_LEVEL);
-    }
 
-    return Logger.instance;
-  };
+const createLogger = (initialLevel: Levels = LOGGER_LEVEL): Logger => {
+  let level = initialLevel;
+  let output: OutputChannel | undefined;
 
-  private static instance?: Logger;
-  private level: Levels;
-  private output?: OutputChannel;
-
-  private constructor(level: Levels) {
-    this.level = level;
-  }
-
-  public debug(...args: string[]): void {
-    if (this.level === Levels.DEBUG) {
-      this.log('debug', ...args);
-    }
-  }
-
-  public error(...args: string[]): void {
-    if (this.level <= Levels.ERROR) {
-      this.log('error', ...args);
-    }
-  }
-
-  public info(...args: string[]): void {
-    if (this.level <= Levels.INFO) {
-      this.log('info', ...args);
-    }
-  }
-
-  public setLevel(level: Levels): void {
-    this.level = level;
-  }
-
-  public setOutput(output: OutputChannel): void {
-    this.output = output;
-  }
-
-  public warn(...args: string[]): void {
-    if (this.level <= Levels.WARN) {
-      this.log('warn', ...args);
-    }
-  }
-  private log(
+  const log = (
     method: 'debug' | 'log' | 'info' | 'warn' | 'error',
     ...args: string[]
-  ): void {
+  ): void => {
     const prefix = `vscode-gist>${method}:`;
     const message = [...args].join(' > ');
-    if (this.output) {
-      this.output.appendLine(`${prefix} ${message}`);
-    }
-  }
-}
 
-export const logger = Logger.getInstance();
+    if (output) {
+      output.appendLine(`${prefix} ${message}`);
+    }
+  };
+
+  return {
+    debug: (...args: string[]): void => {
+      if (level === Levels.DEBUG) {
+        log('debug', ...args);
+      }
+    },
+    error: (...args: string[]): void => {
+      if (level <= Levels.ERROR) {
+        log('error', ...args);
+      }
+    },
+    info: (...args: string[]): void => {
+      if (level <= Levels.INFO) {
+        log('info', ...args);
+      }
+    },
+    setLevel: (newLevel: Levels): void => {
+      level = newLevel;
+    },
+    setOutput: (newOutput: OutputChannel): void => {
+      output = newOutput;
+    },
+    warn: (...args: string[]): void => {
+      if (level <= Levels.WARN) {
+        log('warn', ...args);
+      }
+    }
+  };
+};
+
+export { createLogger };
+export const logger = createLogger(LOGGER_LEVEL);

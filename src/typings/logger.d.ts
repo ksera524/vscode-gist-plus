@@ -1,11 +1,13 @@
-class Logger {
-  public debug(...args: unknown[]): void;
+interface Logger {
+  debug(...args: unknown[]): void;
 
-  public error(...args: unknown[]): void;
+  error(...args: unknown[]): void;
 
-  public info(...args: unknown[]): void;
+  info(...args: unknown[]): void;
 
-  public setLevel(level: Levels): void;
+  setLevel(level: Levels): void;
 
-  public warn(...args: unknown[]): void;
+  setOutput(output: import('vscode').OutputChannel): void;
+
+  warn(...args: unknown[]): void;
 }

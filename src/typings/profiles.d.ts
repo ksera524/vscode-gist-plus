@@ -36,10 +36,10 @@ interface Profile extends RawProfile {
   name: string;
 }
 
-class Profiles {
-  public add(name: string, key: string, url?: string, active?: boolean): void;
-  public configure(options: { state: Memento }): void;
-  public get(): Profile | undefined;
-  public getAll(): Profile[];
-  public reset(): void;
+interface Profiles {
+  add(name: string, key: string, url?: string, active?: boolean): void;
+  configure(options: { state: Memento }): void;
+  get(): Profile | undefined;
+  getAll(): Profile[];
+  reset(): void;
 }
