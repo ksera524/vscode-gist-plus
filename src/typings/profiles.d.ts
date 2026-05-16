@@ -23,7 +23,7 @@ interface Memento {
    * @param key A string.
    * @param value A value. MUST not contain cyclic references.
    */
-  update(key: string, value: any): Thenable<void>;
+  update(key: string, value: unknown): Thenable<void>;
 }
 
 interface RawProfile {
