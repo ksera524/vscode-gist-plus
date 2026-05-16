@@ -17,18 +17,17 @@ const create: CommandInitializer = (
     let gistName = '';
     try {
       const editor = window.activeTextEditor || window.visibleTextEditors[0];
-      const isUntitled = editor?.document?.uri?.scheme === 'untitled';
-      const tmpFilename = editor
-        ? isUntitled
-          ? 'untitled.txt'
-          : utils.files.getFileName(editor.document)
-        : 'untitled.txt';
-      const selection = editor?.selection;
-      const content = !editor
-        ? ''
-        : isUntitled
-          ? ' '
-          : editor.document.getText(selection?.isEmpty ? undefined : selection);
+      const isUntitled =
+        editor?.document?.isUntitled === true ||
+        editor?.document?.uri?.scheme === 'untitled';
+      if (!editor || isUntitled) {
+        throw new Error('Save the file before creating a gist');
+      }
+      const tmpFilename = utils.files.getFileName(editor.document);
+      const selection = editor.selection;
+      const content = editor.document.getText(
+        selection?.isEmpty ? undefined : selection
+      );
       const normalizedContent = content || ' ';
       const filenameInput =
         (await utils.input.prompt('Enter filename', tmpFilename)) || '';
@@ -46,9 +45,6 @@ const create: CommandInitializer = (
           .toLowerCase() === 'y';
 
       gistName = description || filename;
-      logger.error(
-        `${command} > create payload preview > filename=${filename} contentLength=${normalizedContent.length}`
-      );
 
       const gist = await gists.createGist(
         { [filename]: { content: normalizedContent } },

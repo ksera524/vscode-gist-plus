@@ -34,6 +34,7 @@ describe('create gist', () => {
   let createFn: CommandFn;
   const configGetMock = jest.fn();
   beforeEach(() => {
+    (utilsMock.input.prompt as jest.Mock).mockReset();
     const gists = { createGist: createGistMock };
     const insights = { exception: jest.fn() };
     const logger = { error: errorMock };
@@ -135,8 +136,8 @@ describe('create gist', () => {
     expect(error).toBeUndefined();
   });
 
-  test('creates gist with a placeholder when no editor is available', async () => {
-    expect.assertions(1);
+  test('shows an error when no editor is available', async () => {
+    expect.assertions(2);
     (utilsMock.input.prompt as jest.Mock).mockImplementation(
       (_msg: string, defaultValue: string) =>
         Promise.resolve(defaultValue || '')
@@ -151,10 +152,10 @@ describe('create gist', () => {
 
     await createFn();
 
-    expect(createGistMock).toHaveBeenCalledWith(
-      { 'untitled.txt': { content: ' ' } },
-      '',
-      true
+    expect(createGistMock).not.toHaveBeenCalled();
+    expect(utilsMock.notify.error).toHaveBeenCalledWith(
+      'Could Not Create',
+      'Reason: Save the file before creating a gist'
     );
   });
 
@@ -219,8 +220,8 @@ describe('create gist', () => {
     );
   });
 
-  test('creates empty gist content for untitled editor with provided filename', async () => {
-    expect.assertions(1);
+  test('shows an error for untitled editor documents', async () => {
+    expect.assertions(2);
     (utilsMock.input.prompt as jest.Mock)
       .mockResolvedValueOnce('Untitled-1.md')
       .mockResolvedValueOnce('')
@@ -239,15 +240,15 @@ describe('create gist', () => {
 
     await createFn();
 
-    expect(createGistMock).toHaveBeenCalledWith(
-      { 'Untitled-1.md': { content: ' ' } },
-      '',
-      true
+    expect(createGistMock).not.toHaveBeenCalled();
+    expect(utilsMock.notify.error).toHaveBeenCalledWith(
+      'Could Not Create',
+      'Reason: Save the file before creating a gist'
     );
   });
 
-  test('falls back filename when input is whitespace only', async () => {
-    expect.assertions(1);
+  test('shows an error when no editor and filename input is whitespace only', async () => {
+    expect.assertions(2);
     (utilsMock.input.prompt as jest.Mock)
       .mockResolvedValueOnce('   ')
       .mockResolvedValueOnce('aa')
@@ -262,10 +263,10 @@ describe('create gist', () => {
 
     await createFn();
 
-    expect(createGistMock).toHaveBeenCalledWith(
-      { 'untitled.txt': { content: ' ' } },
-      'aa',
-      true
+    expect(createGistMock).not.toHaveBeenCalled();
+    expect(utilsMock.notify.error).toHaveBeenCalledWith(
+      'Could Not Create',
+      'Reason: Save the file before creating a gist'
     );
   });
 
