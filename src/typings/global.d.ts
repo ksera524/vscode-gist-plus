@@ -21,7 +21,7 @@ interface Gist {
 
 interface GistTextDocument {
   fileName: string;
-  getText(range?: any): string;
+  getText(range?: unknown): string;
 }
 interface QuickPickGist {
   block: Gist;

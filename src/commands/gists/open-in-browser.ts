@@ -1,6 +1,7 @@
 import { commands, Uri, window } from 'vscode';
 
 import { GistCommands } from '../extension-commands';
+import { isGist } from './type-guards';
 
 const openInBrowser: CommandInitializer = (
   _config: Configuration,
@@ -11,7 +12,7 @@ const openInBrowser: CommandInitializer = (
 
   const command = GistCommands.OpenInBrowser;
 
-  const commandFn = async (gist?: Gist): Promise<void> => {
+  const commandFn = async (gistValue?: unknown): Promise<void> => {
     const getGistUrlFromOpenEditor = (): Promise<string> => {
       const editor = window.activeTextEditor;
 
@@ -26,6 +27,7 @@ const openInBrowser: CommandInitializer = (
 
     const gistName = '';
     try {
+      const gist = isGist(gistValue) ? gistValue : undefined;
       const url = (gist && gist.url) || (await getGistUrlFromOpenEditor());
       commands.executeCommand('vscode.open', Uri.parse(url));
     } catch (err) {

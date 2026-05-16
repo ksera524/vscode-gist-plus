@@ -10,9 +10,17 @@ const onDidSaveTextDocument: ListenerInitializer = (
   const { gists, logger } = services;
   const listener = Listeners.OnDidSaveTextDocument;
   const listenerStr = getListener(listener);
-  const listenerFn = async (doc: GistTextDocument): Promise<void> => {
+  const isGistTextDocument = (value: unknown): value is GistTextDocument =>
+    typeof value === 'object' && value !== null && 'fileName' in value;
+
+  const listenerFn = async (docValue: unknown): Promise<void> => {
     let file = '';
     try {
+      if (!isGistTextDocument(docValue)) {
+        throw new Error('Invalid document payload');
+      }
+
+      const doc = docValue;
       const editor = window.activeTextEditor;
       const { id, filename, content } = utils.files.extractTextDocumentDetails(
         doc,

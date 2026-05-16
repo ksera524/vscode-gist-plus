@@ -4,20 +4,20 @@ import { GISTS_BASE_URL, GISTS_PER_PAGE } from '../constants';
 
 import { gists } from './gists-service';
 
-interface GistFile {
-  content: string;
-  filename: string;
-  language: string;
-  raw_url: string;
-  size: number;
-  truncated: boolean;
-  type: string;
+interface ApiGistFile {
+  content?: string;
+  filename?: string;
+  language?: string;
+  raw_url?: string;
+  size?: number;
+  truncated?: boolean;
+  type?: string;
 }
 
 interface GistResponse {
   created_at: string;
   description: string;
-  files: { [x: string]: GistFile };
+  files: { [x: string]: ApiGistFile };
   html_url: string;
   id: string;
   public: boolean;
@@ -27,17 +27,15 @@ interface GistResponse {
 
 type GistsResponse = GistResponse[];
 
-// tslint:disable:no-any
 const prepareError = (err: Error): Error => {
   try {
     return new Error(
-      (JSON.parse(err && err.message) || { message: 'unkown' }).message
+      (JSON.parse(err && err.message) || { message: 'unknown' }).message
     );
   } catch {
     return err;
   }
 };
-// tslint:enable:no-any
 
 const formatGist = (gist: unknown): Gist => {
   if (typeof gist !== 'object') {
@@ -53,7 +51,7 @@ const formatGist = (gist: unknown): Gist => {
     }).format(new Date(g.created_at)),
     description: g.description,
     fileCount: Object.keys(g.files).length,
-    files: g.files,
+    files: g.files as unknown as { [x: string]: GistFile },
     id: g.id,
     name: g.description || Object.keys(g.files)[0],
     public: g.public,
@@ -88,9 +86,7 @@ const getGists = async (starred = false): Promise<Gist[]> => {
       per_page: GISTS_PER_PAGE
     });
 
-    // TODO: Octokit type definitions need updating.
-    // tslint:disable-next-line:no-any
-    return formatGists(results.data as any);
+    return formatGists(results.data as unknown as GistsResponse);
   } catch (err) {
     throw prepareError(err as Error);
   }
