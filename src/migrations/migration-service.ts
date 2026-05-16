@@ -8,20 +8,12 @@ type Migration = [
 ];
 
 class MigrationService {
-  public static getInstance = (): MigrationService => {
-    if (!MigrationService.instance) {
-      MigrationService.instance = new MigrationService();
-    }
-
-    return MigrationService.instance;
-  };
-
-  private static instance?: MigrationService;
-
   private migrations: Migration[] = [];
-  private state: Memento = workspace.getConfiguration() as unknown as Memento;
+  private state: Memento;
 
-  private constructor() {}
+  public constructor(state?: Memento) {
+    this.state = state || (workspace.getConfiguration() as unknown as Memento);
+  }
 
   public configure(options: { migrations: Migration[]; state: Memento }): void {
     this.state = options.state;
@@ -70,4 +62,5 @@ class MigrationService {
   }
 }
 
-export const migrations = MigrationService.getInstance();
+export { MigrationService };
+export const migrations = new MigrationService();

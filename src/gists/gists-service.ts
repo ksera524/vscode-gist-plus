@@ -8,20 +8,10 @@ const DEFAULT_OPTIONS = {
 };
 
 class GistsService {
-  public static getInstance = (): GistsService => {
-    if (!GistsService.instance) {
-      GistsService.instance = new GistsService();
-    }
-
-    return GistsService.instance;
-  };
-
-  private static instance?: GistsService;
-
   private octokit: Octokit;
   private options = DEFAULT_OPTIONS;
 
-  private constructor() {
+  public constructor() {
     this.octokit = new Octokit(this.options);
   }
 
@@ -71,4 +61,5 @@ class GistsService {
   }
 }
 
-export const gists = GistsService.getInstance();
+export { GistsService };
+export const gists = new GistsService();

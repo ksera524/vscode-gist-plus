@@ -1,21 +1,10 @@
 import { Memento, workspace } from 'vscode';
 
 class ProfileService {
-  public static getInstance = (): ProfileService => {
-    if (!ProfileService.instance) {
-      ProfileService.instance = new ProfileService();
-    }
-
-    return ProfileService.instance;
-  };
-
-  private static instance?: ProfileService;
-
   private state: Memento;
 
-  private constructor() {
-    // intentionally left blank
-    this.state = workspace.getConfiguration() as unknown as Memento;
+  public constructor(state?: Memento) {
+    this.state = state || (workspace.getConfiguration() as unknown as Memento);
   }
 
   public async add(
@@ -68,4 +57,5 @@ class ProfileService {
   }
 }
 
-export const profiles = ProfileService.getInstance();
+export { ProfileService };
+export const profiles = new ProfileService();
