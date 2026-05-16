@@ -1,4 +1,5 @@
 import fc from 'fast-check';
+import type { OutputChannel } from 'vscode';
 
 import { Levels, createLogger, logger } from '../';
 
@@ -195,9 +196,7 @@ describe('Logger tests', () => {
           async (level, entries) => {
             const append = jest.fn();
             const pbtLogger = createLogger(level);
-            pbtLogger.setOutput({
-              appendLine: append
-            } as unknown as import('vscode').OutputChannel);
+            pbtLogger.setOutput({ appendLine: append } as OutputChannel);
 
             entries.forEach((entry) => {
               pbtLogger[entry.method](entry.msg);

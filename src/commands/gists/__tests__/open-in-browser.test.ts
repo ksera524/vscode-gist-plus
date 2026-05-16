@@ -62,16 +62,49 @@ const executeCommandSpy = jest.spyOn(commands, 'executeCommand');
 describe('open favorite gist', () => {
   let openInBrowserFn: CommandFn;
   beforeEach(() => {
-    const gists = { getGists: getGistsMock, getGist: getGistMock };
+    const gists: GistService = {
+      configure: () => {
+        // noop
+      },
+      createGist: async () => ({}) as Gist,
+      deleteFile: async () => {
+        // noop
+      },
+      deleteGist: async () => {
+        // noop
+      },
+      getGist: getGistMock,
+      getGists: async () => getGistsMock(),
+      updateGist: async () => ({}) as Gist
+    };
     const insights = { exception: jest.fn() };
-    const logger = { error: errorMock, info: jest.fn() };
+    const logger: Logger = {
+      debug: jest.fn(),
+      error: errorMock,
+      info: jest.fn(),
+      setLevel: jest.fn(),
+      setOutput: jest.fn(),
+      warn: jest.fn()
+    };
+    const profiles: Profiles = {
+      add: async () => {
+        // noop
+      },
+      configure: () => {
+        // noop
+      },
+      get: () => undefined,
+      getAll: () => [],
+      reset: async () => {
+        // noop
+      }
+    };
     openInBrowserFn = openInBrowser(
       { get: jest.fn() },
-      { gists, insights, logger } as unknown as Services,
+      { gists, insights, logger, profiles } as Services,
       utilsMock
     )[1];
-    (window as unknown as { activeTextEditor: unknown }).activeTextEditor =
-      undefined;
+    (window as { activeTextEditor: unknown }).activeTextEditor = undefined;
   });
   afterEach(() => {
     jest.clearAllMocks();
@@ -88,7 +121,7 @@ describe('open favorite gist', () => {
     expect.assertions(2);
 
     (
-      utilsMock.files.extractTextDocumentDetails as unknown as jest.Mock
+      utilsMock.files.extractTextDocumentDetails as jest.Mock
     ).mockImplementation(() => ({ id: '123456789abcdefg', url: 'test-url' }));
 
     const codeBlock = {
@@ -101,8 +134,7 @@ describe('open favorite gist', () => {
       selection: { isEmpty: true }
     };
 
-    (window as unknown as { activeTextEditor: unknown }).activeTextEditor =
-      editor;
+    (window as { activeTextEditor: unknown }).activeTextEditor = editor;
 
     await openInBrowserFn();
 

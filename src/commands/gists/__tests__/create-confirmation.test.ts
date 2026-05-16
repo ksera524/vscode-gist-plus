@@ -29,27 +29,57 @@ const errorMock = jest.fn();
 describe('create gist', () => {
   let createConfirmationFn: CommandFn;
   const executeCommandSpy = jest.spyOn(commands, 'executeCommand');
-  const windowMock = window as unknown as {
-    showInformationMessage: {
-      mock: { calls: unknown[][] };
-      mockResolvedValueOnce: (value: { title: string }) => void;
-    };
-  };
+  const showInformationMessageSpy = jest.spyOn(
+    window,
+    'showInformationMessage'
+  );
 
   beforeEach(() => {
-    const gists = { createGist: jest.fn() };
+    const gists: GistService = {
+      configure: () => {
+        // noop
+      },
+      createGist: async () => gistMock,
+      deleteFile: async () => {
+        // noop
+      },
+      deleteGist: async () => {
+        // noop
+      },
+      getGist: async () => gistMock,
+      getGists: async () => [gistMock],
+      updateGist: async () => gistMock
+    };
     const insights = { exception: jest.fn() };
-    const logger = { error: errorMock, info: jest.fn() };
-    (
-      env as unknown as {
-        clipboard: { writeText: (...args: unknown[]) => void };
+    const logger: Logger = {
+      debug: jest.fn(),
+      error: errorMock,
+      info: jest.fn(),
+      setLevel: jest.fn(),
+      setOutput: jest.fn(),
+      warn: jest.fn()
+    };
+    const profiles: Profiles = {
+      add: async () => {
+        // noop
+      },
+      configure: () => {
+        // noop
+      },
+      get: () => undefined,
+      getAll: () => [],
+      reset: async () => {
+        // noop
       }
+    };
+    (
+      env as { clipboard: { writeText: (...args: unknown[]) => void } }
     ).clipboard = {
       writeText: jest.fn()
     };
     createConfirmationFn = createConfirmation(
       { get: jest.fn() },
-      { gists, insights, logger } as unknown as Services,
+      { gists, insights, logger, profiles } as Services,
       utilsMock
     )[1];
   });
@@ -62,7 +92,7 @@ describe('create gist', () => {
 
     await createConfirmationFn(gistMock);
 
-    expect(windowMock.showInformationMessage.mock.calls[0]).toMatchObject([
+    expect(showInformationMessageSpy.mock.calls[0]).toMatchObject([
       'Gist Created',
       {
         title: 'Open in Browser'
@@ -89,7 +119,7 @@ describe('create gist', () => {
 
   test('executes open in browser command when selected', async () => {
     expect.assertions(1);
-    windowMock.showInformationMessage.mockResolvedValueOnce({
+    showInformationMessageSpy.mockResolvedValueOnce({
       title: 'Open in Browser'
     });
 
@@ -103,18 +133,15 @@ describe('create gist', () => {
 
   test('copies gist url when selected', async () => {
     expect.assertions(1);
-    windowMock.showInformationMessage.mockResolvedValueOnce({
+    showInformationMessageSpy.mockResolvedValueOnce({
       title: 'Copy Gist URL to Clipboard'
     });
 
     await createConfirmationFn(gistMock);
 
     expect(
-      (
-        env as unknown as {
-          clipboard: { writeText: (...args: unknown[]) => void };
-        }
-      ).clipboard.writeText
+      (env as { clipboard: { writeText: (...args: unknown[]) => void } })
+        .clipboard.writeText
     ).toHaveBeenCalledWith(gistMock.url);
   });
 });

@@ -68,7 +68,7 @@ describe('File Tests', () => {
             '/var/folders/T/vscode_gist_1111_random_string/mocked-text-document.md',
           getText: jest.fn(() => 'mocked-content')
         },
-        { document: { languageId: 'typescript' } } as unknown as TextEditor
+        { document: { languageId: 'typescript' } } as TextEditor
       );
 
       expect(result.language).toBe('typescript');

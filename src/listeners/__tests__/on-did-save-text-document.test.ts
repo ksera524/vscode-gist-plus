@@ -1,4 +1,5 @@
 import { TMP_DIRECTORY_PREFIX } from '../../constants';
+import type { Gist } from '../../types/gist';
 import { onDidSaveTextDocument } from '../on-did-save-text-document';
 
 const errorMock = jest.fn();
@@ -13,19 +14,54 @@ const utilsMock = jest.genMockFromModule<Utils>('../../utils');
 
 describe('onDidSaveTextDocument', () => {
   let onDidSaveTextDocumentFn: ListenerFn;
-  const filesMock = utilsMock.files as unknown as {
+  const filesMock = utilsMock.files as {
     extractTextDocumentDetails: {
       mockImplementation: (fn: (...args: unknown[]) => unknown) => void;
     };
   };
 
   beforeEach(() => {
-    const gists = { updateGist: updateGistMock };
+    const gists: GistService = {
+      configure: () => {
+        // noop
+      },
+      createGist: async () => ({}) as Gist,
+      deleteFile: async () => {
+        // noop
+      },
+      deleteGist: async () => {
+        // noop
+      },
+      getGist: async () => ({}) as Gist,
+      getGists: async () => [],
+      updateGist: updateGistMock
+    };
     const insights = { exception: exceptionMock, track: trackMock };
-    const logger = { error: errorMock, info: infoMock };
+    const logger: Logger = {
+      debug: jest.fn(),
+      error: errorMock,
+      info: infoMock,
+      setLevel: jest.fn(),
+      setOutput: jest.fn(),
+      warn: jest.fn()
+    };
+    const profiles: Profiles = {
+      add: async () => {
+        // noop
+      },
+      configure: () => {
+        // noop
+      },
+      get: () => undefined,
+      getAll: () => [],
+      reset: async () => {
+        // noop
+      }
+    };
+    const services = { gists, insights, logger, profiles } as Services;
     onDidSaveTextDocumentFn = onDidSaveTextDocument(
       { get: jest.fn() },
-      { gists, insights, logger } as unknown as Services,
+      services,
       utilsMock
     )[1];
   });
