@@ -44,6 +44,33 @@ const formatGist = (gist: unknown): Gist => {
     return <Gist>{};
   }
   const g = <GistResponse>gist;
+  const files: { [x: string]: GistFile } = Object.keys(g.files).reduce<{
+    [x: string]: GistFile;
+  }>((acc, key) => {
+    const file = g.files[key];
+    const normalized: GistFile = { content: file.content || '' };
+
+    if (file.filename !== undefined) {
+      normalized.filename = file.filename;
+    }
+    if (file.language !== undefined) {
+      normalized.language = file.language;
+    }
+    if (file.raw_url !== undefined) {
+      normalized.raw_url = file.raw_url;
+    }
+    if (file.size !== undefined) {
+      normalized.size = file.size;
+    }
+    if (file.type !== undefined) {
+      normalized.type = file.type;
+    }
+
+    acc[key] = normalized;
+
+    return acc;
+  }, {});
+
   return {
     createdAt: new Intl.DateTimeFormat(env.language, {
       day: 'numeric',
@@ -52,7 +79,7 @@ const formatGist = (gist: unknown): Gist => {
     }).format(new Date(g.created_at)),
     description: g.description,
     fileCount: Object.keys(g.files).length,
-    files: g.files as unknown as { [x: string]: GistFile },
+    files,
     id: g.id,
     name: g.description || Object.keys(g.files)[0],
     public: g.public,
@@ -67,6 +94,16 @@ const formatGist = (gist: unknown): Gist => {
 
 const formatGists = (gistList: GistsResponse): Gist[] =>
   gistList.map(formatGist);
+
+const toGistsResponse = (value: unknown): GistsResponse => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter(
+    (item): item is GistResponse => typeof item === 'object' && item !== null
+  );
+};
 
 const getGist = async (id: string): Promise<Gist> => {
   try {
@@ -87,7 +124,7 @@ const getGists = async (starred = false): Promise<Gist[]> => {
       per_page: GISTS_PER_PAGE
     });
 
-    return formatGists(results.data as unknown as GistsResponse);
+    return formatGists(toGistsResponse(results.data));
   } catch (err) {
     throw prepareError(err as Error);
   }

@@ -1,10 +1,10 @@
 interface GistFile {
   content: string;
-  filename: string;
-  language: string;
-  raw_url: string;
-  size: number;
-  type: string;
+  filename?: string;
+  language?: string;
+  raw_url?: string;
+  size?: number;
+  type?: string;
 }
 
 interface Gist {

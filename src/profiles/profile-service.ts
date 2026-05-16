@@ -1,8 +1,23 @@
 import { Memento, workspace } from 'vscode';
 
+const isMemento = (value: unknown): value is Memento =>
+  typeof value === 'object' &&
+  value !== null &&
+  'get' in value &&
+  'update' in value;
+
+const getDefaultState = (): Memento => {
+  const config = workspace.getConfiguration();
+
+  if (!isMemento(config)) {
+    throw new Error('Invalid configuration state');
+  }
+
+  return config;
+};
+
 const createProfileService = (initialState?: Memento): Profiles => {
-  let state =
-    initialState || (workspace.getConfiguration() as unknown as Memento);
+  let state = initialState || getDefaultState();
 
   const getRawProfiles = (): { [x: string]: RawProfile } =>
     state.get<{ [x: string]: RawProfile }>('profiles', {});

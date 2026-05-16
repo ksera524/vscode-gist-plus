@@ -2,6 +2,22 @@ import { Memento, workspace } from 'vscode';
 
 import { logger } from '../logger';
 
+const isMemento = (value: unknown): value is Memento =>
+  typeof value === 'object' &&
+  value !== null &&
+  'get' in value &&
+  'update' in value;
+
+const getDefaultState = (): Memento => {
+  const config = workspace.getConfiguration();
+
+  if (!isMemento(config)) {
+    throw new Error('Invalid configuration state');
+  }
+
+  return config;
+};
+
 type Migration = [
   string,
   (state: Memento, callback: (error?: Error) => void) => void
@@ -13,8 +29,7 @@ interface MigrationUpResult {
 
 const createMigrationService = (initialState?: Memento): MigrationService => {
   let migrationsList: Migration[] = [];
-  let state =
-    initialState || (workspace.getConfiguration() as unknown as Memento);
+  let state = initialState || getDefaultState();
 
   const runMigration = (
     migrationFn: (state: Memento, callback: (error?: Error) => void) => void
