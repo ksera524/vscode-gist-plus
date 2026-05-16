@@ -1,4 +1,3 @@
-// tslint:disable:no-any no-magic-numbers no-unsafe-any
 import { window } from 'vscode';
 
 import { deleteFile } from '../delete-file';

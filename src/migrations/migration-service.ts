@@ -8,11 +8,13 @@ type Migration = [
 ];
 
 class MigrationService {
-  public static getInstance = (): MigrationService =>
-    (MigrationService.instance = MigrationService.instance
-      ? MigrationService.instance
-      : // tslint:disable-next-line:semicolon
-        new MigrationService());
+  public static getInstance = (): MigrationService => {
+    if (!MigrationService.instance) {
+      MigrationService.instance = new MigrationService();
+    }
+
+    return MigrationService.instance;
+  };
 
   private static instance?: MigrationService;
 

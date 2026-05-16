@@ -148,7 +148,6 @@ const deleteGist = async (id: string): Promise<void> => {
 const deleteFile = async (id: string, filename: string): Promise<void> => {
   try {
     await gists.update({
-      // tslint:disable-next-line:no-null-keyword
       files: { [filename]: { content: '' } },
       gist_id: id
     });

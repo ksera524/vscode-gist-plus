@@ -86,8 +86,6 @@ export function activate(context: ExtensionContext): void {
 
 export function deactivate(): void {
   // TODO: close open gist editors
-  // tslint:disable-next-line:no-unsafe-any
   disposables.commands.forEach((d) => d.dispose());
-  // tslint:disable-next-line:no-unsafe-any
   disposables.listeners.forEach((d) => d.dispose());
 }

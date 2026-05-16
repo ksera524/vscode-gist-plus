@@ -1,4 +1,3 @@
-// tslint:disable:no-any no-magic-numbers
 import { window } from 'vscode';
 
 import { update } from '../update';

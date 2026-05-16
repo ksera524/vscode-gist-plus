@@ -1,4 +1,3 @@
-// tslint:disable:no-any no-magic-numbers
 import { commands, window } from 'vscode';
 
 import { create } from '../create';

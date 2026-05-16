@@ -1,4 +1,3 @@
-// tslint:disable:no-any no-unsafe-any no-magic-numbers
 import { profiles } from '../profile-service';
 
 const mockState = {
