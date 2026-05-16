@@ -30,12 +30,12 @@ const createProfileService = (initialState?: Memento): Profiles => {
       active: boolean = false
     ): Promise<void> => {
       const existingProfiles = getRawProfiles();
-      const currentState = Object.keys(existingProfiles)
-        .map((profile) => ({
-          [profile]: {
+      const currentState = Object.entries(existingProfiles)
+        .map(([profileName, profile]) => ({
+          [profileName]: {
             active: false,
-            key: existingProfiles[profile].key,
-            url: existingProfiles[profile].url
+            key: profile.key,
+            url: profile.url
           }
         }))
         .reduce((prev, curr) => ({ ...prev, ...curr }), {});
@@ -51,23 +51,23 @@ const createProfileService = (initialState?: Memento): Profiles => {
     get: (): Profile | undefined => {
       const rawProfiles = getRawProfiles();
 
-      return Object.keys(rawProfiles)
-        .map((profileName) => ({
-          active: rawProfiles[profileName].active,
-          key: rawProfiles[profileName].key,
+      return Object.entries(rawProfiles)
+        .map(([profileName, profile]) => ({
+          active: profile.active,
+          key: profile.key,
           name: profileName,
-          url: rawProfiles[profileName].url
+          url: profile.url
         }))
         .find((profile) => profile.active);
     },
     getAll: (): Profile[] => {
       const rawProfiles = getRawProfiles();
 
-      return Object.keys(rawProfiles).map((profileName) => ({
-        active: rawProfiles[profileName].active,
-        key: rawProfiles[profileName].key,
+      return Object.entries(rawProfiles).map(([profileName, profile]) => ({
+        active: profile.active,
+        key: profile.key,
         name: profileName,
-        url: rawProfiles[profileName].url
+        url: profile.url
       }));
     },
     reset: async (): Promise<void> => {

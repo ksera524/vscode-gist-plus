@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer';
 
 export const EXTENSION_ID = 'ksera524.vscode-gist-plus';
-export const DEBUG = process.env.DEBUG === 'true';
+export const DEBUG = process.env['DEBUG'] === 'true';
 export const GISTS_BASE_URL = 'https://api.github.com';
 export const GISTS_PER_PAGE = 9999;
 export const LOGGER_LEVEL = 3;

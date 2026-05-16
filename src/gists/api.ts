@@ -48,6 +48,9 @@ const formatGist = (gist: unknown): Gist => {
     [x: string]: GistFile;
   }>((acc, key) => {
     const file = g.files[key];
+    if (!file) {
+      return acc;
+    }
     const normalized: GistFile = { content: file.content || '' };
 
     if (file.filename !== undefined) {
@@ -81,7 +84,7 @@ const formatGist = (gist: unknown): Gist => {
     fileCount: Object.keys(g.files).length,
     files,
     id: g.id,
-    name: g.description || Object.keys(g.files)[0],
+    name: g.description || Object.keys(g.files)[0] || '',
     public: g.public,
     updatedAt: new Intl.DateTimeFormat(env.language, {
       day: 'numeric',

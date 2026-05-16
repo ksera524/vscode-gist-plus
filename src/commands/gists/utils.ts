@@ -34,7 +34,7 @@ const selectFile = async (gist: {
 
   return selectedFile
     ? {
-        content: gist.files[selectedFile.label].content,
+        content: gist.files[selectedFile.label]?.content || '',
         filename: selectedFile.label
       }
     : undefined;
@@ -83,7 +83,7 @@ const insertText = async (
       const lines = text.trim().split('\n');
       const endPosition = new Position(
         lines.length + range.start.line - 1,
-        lines[lines.length - 1].length
+        (lines[lines.length - 1] || '').length
       );
 
       const selection = new Selection(range.start, endPosition);
