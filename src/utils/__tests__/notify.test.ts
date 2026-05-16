@@ -7,8 +7,8 @@ let showInfoSpy: jest.SpyInstance<typeof window.showInformationMessage>;
 
 describe('Notify Tests', () => {
   beforeEach(() => {
-    showErrorSpy = jest.spyOn(window, 'showErrorMessage') as any;
-    showInfoSpy = jest.spyOn(window, 'showInformationMessage') as any;
+    showErrorSpy = jest.spyOn(window, 'showErrorMessage');
+    showInfoSpy = jest.spyOn(window, 'showInformationMessage');
   });
   afterEach(() => {
     jest.resetAllMocks();

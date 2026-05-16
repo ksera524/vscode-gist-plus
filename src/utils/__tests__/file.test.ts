@@ -1,3 +1,5 @@
+import { TextDocument, TextEditor } from 'vscode';
+
 import {
   extractTextDocumentDetails,
   filesSync,
@@ -9,6 +11,11 @@ jest.mock('path');
 jest.mock('fs');
 
 describe('File Tests', () => {
+  const makeDoc = (fileName: string): GistTextDocument => ({
+    fileName,
+    getText: () => 'mocked-content'
+  });
+
   describe('#fileSync', () => {
     test('should create a directory and store a file', () => {
       const filePath = fileSync(
@@ -42,7 +49,7 @@ describe('File Tests', () => {
         fileName:
           '/var/folders/T/vscode_gist_1111_random_string/mocked-text-document.md',
         getText
-      } as any);
+      });
       expect(result).toStrictEqual({
         content: 'mocked-content',
         filename: 'mocked-text-document.md',
@@ -60,8 +67,8 @@ describe('File Tests', () => {
           fileName:
             '/var/folders/T/vscode_gist_1111_random_string/mocked-text-document.md',
           getText: jest.fn(() => 'mocked-content')
-        } as any,
-        { document: { languageId: 'typescript' } } as any
+        },
+        { document: { languageId: 'typescript' } } as unknown as TextEditor
       );
 
       expect(result.language).toBe('typescript');
@@ -70,17 +77,16 @@ describe('File Tests', () => {
     test('should return empty id and filename when path does not match gist pattern', () => {
       expect.assertions(1);
 
-      const result = extractTextDocumentDetails({
-        fileName: '/var/folders/T/not-a-gist/temp.txt',
-        getText: jest.fn(() => 'mocked-content')
-      } as any);
+      const result = extractTextDocumentDetails(
+        makeDoc('/var/folders/T/not-a-gist/temp.txt')
+      );
 
       expect(result).toMatchObject({ filename: '', id: '' });
     });
   });
   describe('#getFileName', () => {
     test('should return the filename', () => {
-      const filePath: any = {
+      const filePath = {
         fileName: '/foo/bar/baz/test-file.txt'
       };
 
@@ -90,15 +96,15 @@ describe('File Tests', () => {
     test('should return fallback when basename is empty', () => {
       expect.assertions(1);
 
-      expect(getFileName({ fileName: '' } as any, 'fallback.txt')).toBe(
-        'fallback.txt'
-      );
+      expect(
+        getFileName({ fileName: '' } as TextDocument, 'fallback.txt')
+      ).toBe('fallback.txt');
     });
 
     test('should return unknown.txt when basename and fallback are empty', () => {
       expect.assertions(1);
 
-      expect(getFileName({ fileName: '' } as any)).toBe('unknown.txt');
+      expect(getFileName({ fileName: '' } as TextDocument)).toBe('unknown.txt');
     });
   });
 });
