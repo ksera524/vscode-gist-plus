@@ -1,4 +1,3 @@
-
 import { GISTS_BASE_URL } from '../../constants';
 import { up } from '../migrate-2.0.0';
 
