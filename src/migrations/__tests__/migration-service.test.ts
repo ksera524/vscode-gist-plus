@@ -1,4 +1,3 @@
-
 import { migrations } from '../migration-service';
 
 const state = {
@@ -8,22 +7,31 @@ const state = {
 };
 
 describe('Migrations Tests', () => {
-  test('should process migrations', () => {
+  test('should process migrations', async () => {
     expect.assertions(3);
 
-    const migrationCallback = jest.fn((_s, c) => {
-      c();
-    });
+    const migrationCallback = jest.fn(
+      (_s: unknown, c: (error?: Error) => void) => {
+        c();
+      }
+    );
 
-    const migrationOne: any = ['mymigrationone', migrationCallback];
-    const migrationTwo: any = ['mygrationtwo', migrationCallback];
-    const finalCallback = jest.fn();
+    const migrationOne: [
+      string,
+      (state: unknown, callback: (error?: Error) => void) => void
+    ] = ['mymigrationone', migrationCallback];
+    const migrationTwo: [
+      string,
+      (state: unknown, callback: (error?: Error) => void) => void
+    ] = ['mygrationtwo', migrationCallback];
 
     migrations.configure({ migrations: [migrationOne, migrationTwo], state });
-    migrations.up(finalCallback);
+    const results = await migrations.up();
 
-    expect(finalCallback).toHaveBeenCalled();
+    expect(results).toStrictEqual({
+      migrated: ['mymigrationone', 'mygrationtwo']
+    });
+    expect(migrationCallback).toHaveBeenCalledTimes(2);
     expect(state.update.mock.calls).toHaveLength(2);
-    expect(migrationCallback.mock.calls).toHaveLength(2);
   });
 });
