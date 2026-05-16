@@ -16,6 +16,59 @@ This fork exists to keep the extension usable on modern environments, including 
 Press <kbd>F1</kbd> and narrow down the list commands by typing `extension`. Pick `Extensions: Install Extensions`.
 Select the `Gist Extension` extension from the list.
 
+## Development Environment (Nix)
+
+This repository includes a Nix flake-based development shell for reproducible setup on Linux.
+
+### File Placement
+
+- `flake.nix`: repository root
+- `.envrc`: repository root (contains `use flake` for `direnv` users)
+
+### Prerequisites
+
+1. Install [Nix](https://nixos.org/download/).
+2. Enable `nix-command` and `flakes` features.
+
+You can enable experimental features globally in your Nix config:
+
+```ini
+experimental-features = nix-command flakes
+```
+
+### Enter the Development Shell
+
+Option A (manual):
+
+```bash
+nix develop
+```
+
+Option B (automatic with direnv):
+
+```bash
+# one-time setup
+nix profile install nixpkgs#direnv nixpkgs#nix-direnv
+
+# in this repository
+direnv allow
+```
+
+### Bootstrap and Verify
+
+After entering the shell, run:
+
+```bash
+npm install
+npm run compile
+npm test
+```
+
+### Notes
+
+- Current flake outputs target Linux systems: `x86_64-linux` and `aarch64-linux`.
+- The dev shell provides system libraries used by Electron/VS Code test tooling.
+
 ## GitHub Profiles
 
 _**NOTE:** You must provide a personal access token to be authenticated with GitHub or a GitHub Enterprise instance._
