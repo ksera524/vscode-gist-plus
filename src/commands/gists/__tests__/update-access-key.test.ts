@@ -14,8 +14,8 @@ describe('update access key', () => {
     const logger = { debug: jest.fn() };
     updateAccessKeyFn = updateAccessKey(
       { get: jest.fn() },
-      { gists, insights, logger, profiles } as unknown,
-      utilsMock as unknown
+      { gists, insights, logger, profiles } as Services,
+      utilsMock as Services
     )[1];
   });
   afterEach(() => {
@@ -43,8 +43,8 @@ describe('update access key', () => {
     const logger = { debug: jest.fn() };
     updateAccessKeyFn = updateAccessKey(
       { get: jest.fn() },
-      { gists, insights, logger, profiles } as unknown,
-      utilsMock as unknown
+      { gists, insights, logger, profiles } as Services,
+      utilsMock as Services
     )[1];
 
     updateAccessKeyFn();

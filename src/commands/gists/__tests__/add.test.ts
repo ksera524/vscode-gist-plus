@@ -1,4 +1,4 @@
-import { window } from 'vscode';
+import { TextEditor, window } from 'vscode';
 
 import { add } from '../add';
 
@@ -54,10 +54,10 @@ describe('open gist', () => {
     const logger = { debug: jest.fn(), error: errorMock, info: jest.fn() };
     addFn = add(
       { get: jest.fn() },
-      { gists, insights, logger } as unknown,
-      utilsMock as unknown
+      { gists, insights, logger } as Services,
+      utilsMock as Utils
     )[1];
-    (<unknown>window).activeTextEditor = undefined;
+    Reflect.set(window, 'activeTextEditor', undefined);
   });
   afterEach(() => {
     jest.clearAllMocks();
@@ -65,7 +65,7 @@ describe('open gist', () => {
   test('what happens when errors occur', async () => {
     expect.assertions(1);
 
-    (<unknown>utilsMock.input.quickPick).mockRejectedValueOnce(false);
+    (utilsMock.input.quickPick as jest.Mock).mockRejectedValueOnce(false);
 
     await addFn();
     expect(errorMock.mock.calls.length).toBe(1);
@@ -73,21 +73,23 @@ describe('open gist', () => {
   test('it prompts for filename and opens the quickpick pane', async () => {
     expect.assertions(5);
 
-    window.activeTextEditor = <unknown>{
+    Reflect.set(window, 'activeTextEditor', {
       document: { getText: jest.fn() },
       selection: { isEmpty: true }
-    };
-    (<unknown>utilsMock.input.prompt).mockResolvedValue('test-file.txt');
+    } as TextEditor);
+    (utilsMock.input.prompt as jest.Mock).mockResolvedValue('test-file.txt');
 
     await addFn();
 
-    expect((<unknown>utilsMock).input.prompt).toHaveBeenCalledTimes(1);
-    expect((<unknown>utilsMock).input.quickPick).toHaveBeenCalledTimes(1);
+    expect((utilsMock as Utils).input.prompt).toHaveBeenCalledTimes(1);
+    expect((utilsMock as Utils).input.quickPick).toHaveBeenCalledTimes(1);
 
-    expect((<unknown>utilsMock.input.quickPick).mock.calls.length).toBe(1);
+    expect((utilsMock.input.quickPick as jest.Mock).mock.calls.length).toBe(1);
 
-    const firstGist = (<unknown>utilsMock.input.quickPick).mock.calls[0][0][0];
-    const secondGist = (<unknown>utilsMock.input.quickPick).mock.calls[0][0][1];
+    const firstGist = (utilsMock.input.quickPick as jest.Mock).mock
+      .calls[0][0][0];
+    const secondGist = (utilsMock.input.quickPick as jest.Mock).mock
+      .calls[0][0][1];
 
     expect(firstGist.name).toBe('gist one');
     expect(secondGist.name).toBe('gist two');
@@ -95,12 +97,12 @@ describe('open gist', () => {
   test('it adds a document to a gist', async () => {
     expect.assertions(1);
 
-    window.activeTextEditor = <unknown>{
+    Reflect.set(window, 'activeTextEditor', {
       document: { getText: jest.fn(() => 'some-text') },
       selection: { isEmpty: true }
-    };
-    (<unknown>utilsMock.input.prompt).mockResolvedValue('test-file.txt');
-    (<unknown>utilsMock.input.quickPick).mockResolvedValue({
+    } as TextEditor);
+    (utilsMock.input.prompt as jest.Mock).mockResolvedValue('test-file.txt');
+    (utilsMock.input.quickPick as jest.Mock).mockResolvedValue({
       block: { id: '123', filename: 'test-file.txt' }
     });
 

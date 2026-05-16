@@ -45,7 +45,7 @@ describe('Profile Service Tests', () => {
     test('should return array with two profiles', () => {
       expect.assertions(2);
 
-      mockState.get.mockReturnValue({ ...gh, ...ghe } as unknown);
+      mockState.get.mockReturnValue({ ...gh, ...ghe } as Services);
 
       expect(profiles.getAll().length).toBe(2);
       expect(profiles.getAll()[1]).toStrictEqual({
@@ -70,7 +70,7 @@ describe('Profile Service Tests', () => {
         'GitHub Enterprise': { ...ghe['GitHub Enterprise'], active: true }
       };
 
-      mockState.get.mockReturnValue({ ...gh, ...ghe2 } as unknown);
+      mockState.get.mockReturnValue({ ...gh, ...ghe2 } as Services);
 
       expect(() => profiles.get()).not.toThrowError();
       expect(profiles.get()).toStrictEqual({

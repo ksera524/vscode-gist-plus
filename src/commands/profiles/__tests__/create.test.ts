@@ -17,8 +17,8 @@ describe('create profile', () => {
     const profiles = { add: addMock };
     createFn = create(
       { get: jest.fn() },
-      { insights, logger, profiles } as unknown,
-      utilsMock as unknown
+      { insights, logger, profiles } as Services,
+      utilsMock as Services
     )[1];
   });
   afterEach(() => {

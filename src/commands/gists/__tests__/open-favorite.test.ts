@@ -51,10 +51,10 @@ describe('open favorite gist', () => {
     const logger = { error: errorMock, info: jest.fn() };
     openFavoriteFn = openFavorite(
       { get: jest.fn() },
-      { gists, insights, logger } as unknown,
-      utilsMock as unknown
+      { gists, insights, logger } as Services,
+      utilsMock as Services
     )[1];
-    (<unknown>window).activeTextEditor = undefined;
+    (window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }).activeTextEditor = undefined;
   });
   afterEach(() => {
     jest.clearAllMocks();
@@ -89,7 +89,7 @@ describe('open favorite gist', () => {
         id: '123'
       },
       label: 'foo'
-    } as unknown);
+    } as Services);
 
     await openFavoriteFn();
 

@@ -17,7 +17,7 @@ describe('Gist Command Utils Tests', () => {
     test('it should open a gist in an editor', async () => {
       expect.assertions(3);
 
-      const mockDoc: any = {
+      const mockDoc = {
         getText(): string {
           return 'test-file-one';
         }
@@ -31,7 +31,7 @@ describe('Gist Command Utils Tests', () => {
         fileCount: 1,
         files: { 'file-one.md': { content: 'test-file-one' } },
         id: '123test'
-      } as unknown);
+      });
 
       expect(showTextDocumentSpy).toHaveBeenCalledTimes(1);
       expect(openTextDocumentMock).toHaveBeenCalledWith(
@@ -41,7 +41,7 @@ describe('Gist Command Utils Tests', () => {
     });
     test('it should ask user to select file of multiple file gist', async () => {
       expect.assertions(1);
-      showQuickPickSpy.mockImplementationOnce((items: any) =>
+      showQuickPickSpy.mockImplementationOnce((items) =>
         Promise.resolve(items[0])
       );
 
@@ -53,7 +53,7 @@ describe('Gist Command Utils Tests', () => {
             'file-two.md': { content: 'test-file-two' }
           },
           id: '123test'
-        } as unknown,
+        },
         1
       );
 
@@ -86,7 +86,7 @@ describe('Gist Command Utils Tests', () => {
               'file-two.md': { content: 'test-file-two' }
             },
             id: '123test'
-          } as unknown,
+          },
           1
         )
       ).rejects.toThrow('File not found');
@@ -101,13 +101,13 @@ describe('Gist Command Utils Tests', () => {
           'file-one.md': { content: 'test-content' },
           'file-two.md': { content: 'test-content' }
         }
-      } as unknown);
+      });
 
       expect(showQuickPickSpy).toHaveBeenCalledTimes(1);
     });
     test('it returns a single file when the user selects one', async () => {
       expect.assertions(2);
-      showQuickPickSpy.mockImplementationOnce((items: any) =>
+      showQuickPickSpy.mockImplementationOnce((items) =>
         Promise.resolve(items[0])
       );
 
@@ -116,7 +116,7 @@ describe('Gist Command Utils Tests', () => {
           'file-one.md': { content: 'test-content-one' },
           'file-two.md': { content: 'test-content-two' }
         }
-      } as unknown);
+      });
 
       expect(showQuickPickSpy).toHaveBeenCalledTimes(1);
       expect(file).toStrictEqual({
@@ -134,7 +134,7 @@ describe('Gist Command Utils Tests', () => {
           'file-one.md': { content: 'test-content-one' },
           'file-two.md': { content: 'test-content-two' }
         }
-      } as unknown);
+      });
 
       expect(file).toBeUndefined();
     });
@@ -153,7 +153,7 @@ describe('Gist Command Utils Tests', () => {
           start: { line: 1, character: 2 },
           end: { line: 1, character: 2 }
         }
-      } as unknown;
+      };
 
       await expect(insertText(editor, 'hello world')).resolves.toBe(false);
       applyEditSpy.mockRestore();

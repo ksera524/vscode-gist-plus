@@ -90,7 +90,7 @@ describe('Gists API Tests', () => {
       expect.assertions(1);
       const getSpy = jest
         .spyOn(gists, 'get')
-        .mockResolvedValueOnce({ data: 'not-an-object' } as unknown);
+        .mockResolvedValueOnce({ data: 'not-an-object' } as Services);
 
       const gist: any = await getGist('bad-id');
 

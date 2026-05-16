@@ -20,8 +20,8 @@ describe('select profile', () => {
     const profiles = { add: addMock, getAll: getAllMock };
     selectFn = select(
       { get: jest.fn() },
-      { insights, logger, profiles } as unknown,
-      utilsMock as unknown
+      { insights, logger, profiles } as Services,
+      utilsMock as Services
     )[1];
   });
   afterEach(() => {
