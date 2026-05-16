@@ -21,13 +21,54 @@
             nspr
             nss
             alsa-lib
+            glib
+            dbus
+            atk
+            at-spi2-atk
+            at-spi2-core
+            cairo
+            pango
+            gtk3
+            libx11
+            libxcomposite
+            libxdamage
+            libxext
+            libxfixes
+            libxrandr
+            libxcb
+            libgbm
+            mesa
+            expat
+            libxkbcommon
+            udev
           ];
 
           LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [
             pkgs.nspr
             pkgs.nss
             pkgs.alsa-lib
+            pkgs.glib
+            pkgs.dbus
+            pkgs.atk
+            pkgs.at-spi2-atk
+            pkgs.at-spi2-core
+            pkgs.cairo
+            pkgs.pango
+            pkgs.gtk3
+            pkgs.libx11
+            pkgs.libxcomposite
+            pkgs.libxdamage
+            pkgs.libxext
+            pkgs.libxfixes
+            pkgs.libxrandr
+            pkgs.libxcb
+            pkgs.libgbm
+            pkgs.mesa
+            pkgs.expat
+            pkgs.libxkbcommon
+            pkgs.udev
           ];
+
         };
       });
     };
