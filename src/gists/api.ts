@@ -1,6 +1,7 @@
 import { env } from 'vscode';
 
 import { GISTS_BASE_URL, GISTS_PER_PAGE } from '../constants';
+import type { Gist, GistFile } from '../types/gist';
 
 import { gists } from './gists-service';
 
