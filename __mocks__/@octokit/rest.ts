@@ -97,11 +97,22 @@ const mockedGists = {
   )
 };
 
+const mockedRequest = jest.fn((route, params) => {
+  if (route === 'POST /gists') {
+    return mockedGists.create(params);
+  }
+
+  return Promise.reject(
+    new Error(`Unsupported mocked route: ${String(route)}`)
+  );
+});
+
 module.exports = {
   Octokit: jest.fn(function Octokit() {
     return {
       auth: jest.fn(),
-      gists: mockedGists
+      gists: mockedGists,
+      request: mockedRequest
     };
   })
 };

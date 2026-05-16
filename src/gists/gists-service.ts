@@ -52,7 +52,13 @@ const createGistsService = (): GistsService => {
     },
     create: (
       params: RestEndpointMethodTypes['gists']['create']['parameters']
-    ) => octokit.gists.create(params),
+    ) =>
+      octokit.request('POST /gists', {
+        ...params,
+        headers: {
+          accept: 'application/vnd.github+json'
+        }
+      }),
     delete: (
       params: RestEndpointMethodTypes['gists']['delete']['parameters']
     ) => octokit.gists.delete(params),
