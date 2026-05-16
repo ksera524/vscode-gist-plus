@@ -9,11 +9,13 @@ export enum Levels {
   ERROR = 3
 }
 class Logger {
-  public static getInstance = (): Logger =>
-    (Logger.instance = Logger.instance
-      ? Logger.instance
-      : // tslint:disable-next-line:semicolon
-        new Logger(LOGGER_LEVEL));
+  public static getInstance = (): Logger => {
+    if (!Logger.instance) {
+      Logger.instance = new Logger(LOGGER_LEVEL);
+    }
+
+    return Logger.instance;
+  };
 
   private static instance?: Logger;
   private level: Levels;

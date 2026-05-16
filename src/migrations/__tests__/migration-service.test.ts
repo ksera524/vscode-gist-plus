@@ -1,4 +1,3 @@
-// tslint:disable:no-magic-numbers no-any no-unsafe-any
 
 import { migrations } from '../migration-service';
 

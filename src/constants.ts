@@ -1,4 +1,3 @@
-// tslint:disable:no-magic-numbers
 import { Buffer } from 'buffer';
 
 export const EXTENSION_ID = 'ksera524.vscode-gist-plus';

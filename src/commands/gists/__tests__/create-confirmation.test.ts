@@ -1,4 +1,3 @@
-// tslint:disable:no-any no-magic-numbers no-unsafe-any no-unbound-method
 import { commands, env, window } from 'vscode';
 
 import { createConfirmation } from '../create-confirmation';
