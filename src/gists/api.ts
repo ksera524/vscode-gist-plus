@@ -218,7 +218,12 @@ const createGist = async (
 
     return formatGist(results.data);
   } catch (err) {
-    throw prepareError(err as Error);
+    const normalizedFiles = normalizeCreateFiles(files);
+    const prepared = prepareError(err as Error);
+    const fileKeys = Object.keys(normalizedFiles);
+    throw new Error(
+      `${prepared.message} (createGist debug: files=${fileKeys.length} keys=[${fileKeys.join(', ')}])`
+    );
   }
 };
 

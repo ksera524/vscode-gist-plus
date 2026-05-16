@@ -25,14 +25,12 @@ const create: CommandInitializer = (
         ? editor.document.getText(selection?.isEmpty ? undefined : selection)
         : '';
       const normalizedContent = content || ' ';
-      const filenameInput = await utils.input.prompt(
-        'Enter filename',
-        tmpFilename
-      );
+      const filenameInput =
+        (await utils.input.prompt('Enter filename', tmpFilename)) || '';
       const filename = filenameInput.trim() || tmpFilename;
-      const description = (
-        await utils.input.prompt('Enter description')
-      ).trim();
+      const descriptionInput =
+        (await utils.input.prompt('Enter description')) || '';
+      const description = descriptionInput.trim();
       const defaultValue = config.get<boolean>('defaultPrivate') ? 'N' : 'Y';
       const isPublic =
         (
@@ -43,6 +41,9 @@ const create: CommandInitializer = (
           .toLowerCase() === 'y';
 
       gistName = description || filename;
+      logger.error(
+        `${command} > create payload preview > filename=${filename} contentLength=${normalizedContent.length}`
+      );
 
       const gist = await gists.createGist(
         { [filename]: { content: normalizedContent } },
