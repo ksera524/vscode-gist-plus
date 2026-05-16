@@ -30,7 +30,7 @@ type GistsResponse = GistResponse[];
 const prepareError = (err: Error): Error => {
   try {
     return new Error(
-      (JSON.parse(err && err.message) || { message: 'unkown' }).message
+      (JSON.parse(err && err.message) || { message: 'unknown' }).message
     );
   } catch {
     return err;

@@ -1,6 +1,7 @@
 import { commands, env, window } from 'vscode';
 
 import { GistCommands } from '../extension-commands';
+import { isGist } from './type-guards';
 
 const createConfirmation: CommandInitializer = (
   _config: Configuration,
@@ -15,9 +16,6 @@ const createConfirmation: CommandInitializer = (
     OpenInBrowser = 'Open in Browser',
     CopyGistURL = 'Copy Gist URL to Clipboard'
   }
-
-  const isGist = (value: unknown): value is Gist =>
-    typeof value === 'object' && value !== null && 'url' in value;
 
   const commandFn = async (gistValue: unknown): Promise<void> => {
     try {

@@ -37,7 +37,7 @@ describe('onDidSaveTextDocument', () => {
       content: 'test-file-content',
       filename: 'test-file-name.md',
       id: '123',
-      language: 'unkown'
+      language: 'unknown'
     }));
 
     await onDidSaveTextDocumentFn({

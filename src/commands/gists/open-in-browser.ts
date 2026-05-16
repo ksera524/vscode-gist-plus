@@ -1,6 +1,7 @@
 import { commands, Uri, window } from 'vscode';
 
 import { GistCommands } from '../extension-commands';
+import { isGist } from './type-guards';
 
 const openInBrowser: CommandInitializer = (
   _config: Configuration,
@@ -10,9 +11,6 @@ const openInBrowser: CommandInitializer = (
   const { gists, logger } = services;
 
   const command = GistCommands.OpenInBrowser;
-
-  const isGist = (value: unknown): value is Gist =>
-    typeof value === 'object' && value !== null && 'url' in value;
 
   const commandFn = async (gistValue?: unknown): Promise<void> => {
     const getGistUrlFromOpenEditor = (): Promise<string> => {
