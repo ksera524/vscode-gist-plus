@@ -23,11 +23,14 @@ const filesSync = (
   token: string,
   files: { [x: string]: { content: string } }
 ): string[] => {
+  const directory = dirSync(token);
   const filePaths: string[] = [];
   for (const filename in files) {
     if (Object.prototype.hasOwnProperty.call(files, filename)) {
       const { content } = files[filename];
-      filePaths.push(fileSync(token, filename, content));
+      const filePath = path.join(directory, filename);
+      fs.writeFileSync(filePath, content);
+      filePaths.push(filePath);
     }
   }
 
