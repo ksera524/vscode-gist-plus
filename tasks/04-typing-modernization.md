@@ -11,6 +11,7 @@ Replace weak typing and global legacy declarations with strict types.
 - Replace `any` with concrete types or `unknown` plus narrowing.
 - Improve function signatures such as `CommandFn` and `ListenerFn`.
 - Remove avoidable unsafe type assertions.
+- Move global `Gist` declaration from `src/typings/global.d.ts` to an explicit module (for example `src/types/gist.ts`) and migrate consumers to import-based types.
 
 ## Done When
 - Production code has no explicit `any`.
