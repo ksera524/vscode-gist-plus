@@ -17,13 +17,18 @@ const create: CommandInitializer = (
     let gistName = '';
     try {
       const editor = window.activeTextEditor || window.visibleTextEditors[0];
+      const isUntitled = editor?.document?.uri?.scheme === 'untitled';
       const tmpFilename = editor
-        ? utils.files.getFileName(editor.document)
+        ? isUntitled
+          ? 'untitled.txt'
+          : utils.files.getFileName(editor.document)
         : 'untitled.txt';
       const selection = editor?.selection;
-      const content = editor
-        ? editor.document.getText(selection?.isEmpty ? undefined : selection)
-        : '';
+      const content = !editor
+        ? ''
+        : isUntitled
+          ? ' '
+          : editor.document.getText(selection?.isEmpty ? undefined : selection);
       const normalizedContent = content || ' ';
       const filenameInput =
         (await utils.input.prompt('Enter filename', tmpFilename)) || '';

@@ -219,6 +219,33 @@ describe('create gist', () => {
     );
   });
 
+  test('creates empty gist content for untitled editor with provided filename', async () => {
+    expect.assertions(1);
+    (utilsMock.input.prompt as jest.Mock)
+      .mockResolvedValueOnce('Untitled-1.md')
+      .mockResolvedValueOnce('')
+      .mockResolvedValueOnce('Y');
+
+    (
+      window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }
+    ).activeTextEditor = {
+      document: {
+        fileName: 'Untitled-1',
+        getText: jest.fn(() => 'draft text'),
+        uri: { scheme: 'untitled' }
+      },
+      selection: { isEmpty: true }
+    };
+
+    await createFn();
+
+    expect(createGistMock).toHaveBeenCalledWith(
+      { 'Untitled-1.md': { content: ' ' } },
+      '',
+      true
+    );
+  });
+
   test('falls back filename when input is whitespace only', async () => {
     expect.assertions(1);
     (utilsMock.input.prompt as jest.Mock)
