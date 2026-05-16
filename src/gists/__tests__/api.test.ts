@@ -116,8 +116,8 @@ describe('Gists API Tests', () => {
       getSpy.mockRestore();
     });
 
-    test('throws when gist file content is missing', async () => {
-      expect.assertions(1);
+    test('gracefully handles gist files without content', async () => {
+      expect.assertions(2);
       const getSpy = jest.spyOn(gists, 'get').mockResolvedValueOnce({
         data: {
           created_at: new Date().toString(),
@@ -135,9 +135,37 @@ describe('Gists API Tests', () => {
         }
       } as Services);
 
-      await expect(getGist('broken-id')).rejects.toThrow(
-        'Invalid gist file content'
-      );
+      const gist = await getGist('broken-id');
+      expect(gist.id).toBe('broken-id');
+      expect(gist.files['bad.md']).toStrictEqual({
+        content: '',
+        filename: 'bad.md'
+      });
+      getSpy.mockRestore();
+    });
+
+    test('accepts payloads where description is null', async () => {
+      expect.assertions(2);
+      const getSpy = jest.spyOn(gists, 'get').mockResolvedValueOnce({
+        data: {
+          created_at: new Date().toString(),
+          description: null,
+          files: {
+            'sample.md': {
+              content: 'hello'
+            }
+          },
+          html_url: 'https://foo.bar',
+          id: 'null-desc-id',
+          public: true,
+          updated_at: new Date().toString(),
+          url: 'https://api.github.com/gists/null-desc-id'
+        }
+      } as Services);
+
+      const gist = await getGist('null-desc-id');
+      expect(gist.description).toBe('');
+      expect(gist.name).toBe('sample.md');
       getSpy.mockRestore();
     });
 

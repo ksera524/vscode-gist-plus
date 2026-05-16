@@ -17,7 +17,7 @@ interface ApiGistFile {
 
 interface GistResponse {
   created_at: string;
-  description: string;
+  description: string | null;
   files: { [x: string]: ApiGistFile };
   html_url?: string;
   id: string;
@@ -41,7 +41,8 @@ const isGistResponse = (value: unknown): value is GistResponse => {
 
   return (
     typeof value['created_at'] === 'string' &&
-    typeof value['description'] === 'string' &&
+    (typeof value['description'] === 'string' ||
+      value['description'] === null) &&
     isRecord(value['files']) &&
     hasUrl &&
     typeof value['id'] === 'string' &&
@@ -72,11 +73,9 @@ const formatGist = (gist: unknown): Gist => {
     if (!file) {
       return acc;
     }
-    if (typeof file.content !== 'string') {
-      throw new Error('Invalid gist file content');
-    }
-
-    const normalized: GistFile = { content: file.content };
+    const normalized: GistFile = {
+      content: typeof file.content === 'string' ? file.content : ''
+    };
 
     if (typeof file.filename === 'string') {
       normalized.filename = file.filename;
@@ -105,7 +104,7 @@ const formatGist = (gist: unknown): Gist => {
       month: 'long',
       year: 'numeric'
     }).format(new Date(g.created_at)),
-    description: g.description,
+    description: g.description || '',
     fileCount: Object.keys(g.files).length,
     files,
     id: g.id,
