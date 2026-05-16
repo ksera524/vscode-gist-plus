@@ -61,6 +61,28 @@ const prepareError = (err: Error): Error => {
   }
 };
 
+const normalizeCreateFiles = (files?: {
+  [x: string]: { content: string };
+}): { [x: string]: { content: string } } => {
+  const normalized: { [x: string]: { content: string } } = {};
+
+  if (files && typeof files === 'object') {
+    for (const [filename, file] of Object.entries(files)) {
+      const trimmed = filename.trim();
+      if (!trimmed || !file || typeof file.content !== 'string') {
+        continue;
+      }
+      normalized[trimmed] = { content: file.content || ' ' };
+    }
+  }
+
+  if (Object.keys(normalized).length === 0) {
+    return { 'untitled.txt': { content: ' ' } };
+  }
+
+  return normalized;
+};
+
 const formatGist = (gist: unknown): Gist => {
   if (!isGistResponse(gist)) {
     throw new Error('Invalid gist payload');
@@ -187,9 +209,10 @@ const createGist = async (
   isPublic = true
 ): Promise<Gist> => {
   try {
+    const normalizedFiles = normalizeCreateFiles(files);
     const results = await gists.create({
       description,
-      files,
+      files: normalizedFiles,
       public: isPublic
     });
 

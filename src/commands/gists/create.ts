@@ -24,10 +24,15 @@ const create: CommandInitializer = (
       const content = editor
         ? editor.document.getText(selection?.isEmpty ? undefined : selection)
         : '';
-      const filename =
-        (await utils.input.prompt('Enter filename', tmpFilename)) ||
-        tmpFilename;
-      const description = await utils.input.prompt('Enter description');
+      const normalizedContent = content || ' ';
+      const filenameInput = await utils.input.prompt(
+        'Enter filename',
+        tmpFilename
+      );
+      const filename = filenameInput.trim() || tmpFilename;
+      const description = (
+        await utils.input.prompt('Enter description')
+      ).trim();
       const defaultValue = config.get<boolean>('defaultPrivate') ? 'N' : 'Y';
       const isPublic =
         (
@@ -40,7 +45,7 @@ const create: CommandInitializer = (
       gistName = description || filename;
 
       const gist = await gists.createGist(
-        { [filename]: { content } },
+        { [filename]: { content: normalizedContent } },
         description,
         isPublic
       );

@@ -255,6 +255,45 @@ describe('Gists API Tests', () => {
       ).rejects.toThrow('create failed');
       createSpy.mockRestore();
     });
+
+    test('normalizes empty files payload to a placeholder file', async () => {
+      expect.assertions(2);
+
+      const createSpy = jest.spyOn(gists, 'create');
+      await createGist(
+        {} as { [x: string]: { content: string } },
+        'placeholder-test'
+      );
+
+      expect(createSpy).toHaveBeenCalledTimes(1);
+      expect(createSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          files: { 'untitled.txt': { content: ' ' } }
+        })
+      );
+      createSpy.mockRestore();
+    });
+
+    test('ignores invalid file entries and keeps valid ones', async () => {
+      expect.assertions(2);
+
+      const createSpy = jest.spyOn(gists, 'create');
+      await createGist(
+        {
+          '   ': { content: 'x' },
+          'ok.txt': { content: 'ok' }
+        } as { [x: string]: { content: string } },
+        'valid-file-test'
+      );
+
+      expect(createSpy).toHaveBeenCalledTimes(1);
+      expect(createSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          files: { 'ok.txt': { content: 'ok' } }
+        })
+      );
+      createSpy.mockRestore();
+    });
   });
   describe('#deleteGist', () => {
     test('deletes a gist', async () => {

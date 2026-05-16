@@ -135,7 +135,7 @@ describe('create gist', () => {
     expect(error).toBeUndefined();
   });
 
-  test('creates gist with empty content when no editor is available', async () => {
+  test('creates gist with a placeholder when no editor is available', async () => {
     expect.assertions(1);
     (utilsMock.input.prompt as jest.Mock).mockImplementation(
       (_msg: string, defaultValue: string) =>
@@ -152,7 +152,7 @@ describe('create gist', () => {
     await createFn();
 
     expect(createGistMock).toHaveBeenCalledWith(
-      { 'untitled.txt': { content: '' } },
+      { 'untitled.txt': { content: ' ' } },
       '',
       true
     );
@@ -214,7 +214,30 @@ describe('create gist', () => {
     expect(codeBlock.getText).toHaveBeenCalledWith(selection);
     expect(createGistMock).toHaveBeenCalledWith(
       { 'test-file-name.md': { content: 'selected-text' } },
-      undefined,
+      '',
+      true
+    );
+  });
+
+  test('falls back filename when input is whitespace only', async () => {
+    expect.assertions(1);
+    (utilsMock.input.prompt as jest.Mock)
+      .mockResolvedValueOnce('   ')
+      .mockResolvedValueOnce('aa')
+      .mockResolvedValueOnce('Y');
+
+    (
+      window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }
+    ).activeTextEditor = undefined;
+    (
+      window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }
+    ).visibleTextEditors = [];
+
+    await createFn();
+
+    expect(createGistMock).toHaveBeenCalledWith(
+      { 'untitled.txt': { content: ' ' } },
+      'aa',
       true
     );
   });
