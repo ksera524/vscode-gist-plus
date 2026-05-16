@@ -125,6 +125,34 @@ describe('create gist', () => {
     expect(error).toBeUndefined();
   });
 
+  test('uses first visible editor when active editor is unavailable', async () => {
+    expect.assertions(1);
+
+    (utilsMock.input.prompt as jest.Mock).mockImplementation(
+      (_msg: string, defaultValue: string) =>
+        Promise.resolve(defaultValue || '')
+    );
+
+    const fallbackEditor = {
+      document: {
+        fileName: `${TMP_DIRECTORY_PREFIX}_fallback_random_string/test-fallback.md`,
+        getText: jest.fn(() => 'fallback-content')
+      },
+      selection: { isEmpty: true }
+    };
+
+    (window as any).activeTextEditor = undefined;
+    (window as any).visibleTextEditors = [fallbackEditor];
+
+    await createFn();
+
+    expect(createGistMock).toHaveBeenCalledWith(
+      { 'test-fallback.md': { content: 'fallback-content' } },
+      '',
+      true
+    );
+  });
+
   test('uses selection when there is an active selection', async () => {
     expect.assertions(2);
     (utilsMock.input.prompt as jest.Mock).mockImplementation(

@@ -16,7 +16,7 @@ const create: CommandInitializer = (
   const commandFn = async (): Promise<void> => {
     let gistName = '';
     try {
-      const editor = window.activeTextEditor;
+      const editor = window.activeTextEditor || window.visibleTextEditors[0];
       if (!editor) {
         throw new Error('Open a file before creating');
       }
