@@ -28,7 +28,6 @@ const deleteFile: CommandInitializer = (
           return;
         }
         logger.info(`Deleting File "${id}"`);
-        // tslint:disable-next-line:no-null-keyword
         await gists.deleteFile(id, filename);
         commands.executeCommand('workbench.action.closeActiveEditor');
         utils.notify.info('Deleted File');

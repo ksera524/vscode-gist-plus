@@ -1,4 +1,3 @@
-// tslint:disable:no-any no-magic-numbers no-unsafe-any
 import { updateAccessKey } from '../update-access-key';
 
 const utilsMock = jest.genMockFromModule<Utils>('../../../utils');

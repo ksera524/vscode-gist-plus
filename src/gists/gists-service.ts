@@ -8,17 +8,10 @@ const DEFAULT_OPTIONS = {
 };
 
 class GistsService {
-  public static getInstance = (): GistsService =>
-    // TODO: permanently disable the semicolon rule
-    // tslint:disable-next-line:semicolon
-    GistsService.instance ? GistsService.instance : new GistsService();
-
-  private static readonly instance?: GistsService;
-
   private octokit: Octokit;
   private options = DEFAULT_OPTIONS;
 
-  private constructor() {
+  public constructor() {
     this.octokit = new Octokit(this.options);
   }
 
@@ -28,10 +21,10 @@ class GistsService {
     url?: string;
   }): void {
     const url = options.url || 'https://api.github.com';
-    const rejectUnauthorized = options.rejectUnauthorized || true;
+    const rejectUnauthorized = options.rejectUnauthorized ?? true;
     const agent = new https.Agent({ rejectUnauthorized });
     const config = { baseUrl: url, agent };
-    this.options = config || this.options;
+    this.options = config;
     this.octokit = new Octokit({ auth: options.key, ...this.options });
   }
 
@@ -68,4 +61,5 @@ class GistsService {
   }
 }
 
-export const gists = GistsService.getInstance();
+export { GistsService };
+export const gists = new GistsService();

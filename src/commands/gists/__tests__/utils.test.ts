@@ -1,4 +1,3 @@
-// tslint:disable:no-any no-magic-numbers no-unsafe-any
 import { window, workspace } from 'vscode';
 
 import { insertText, openGist, selectFile } from '../utils';

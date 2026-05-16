@@ -1,4 +1,3 @@
-// tslint:disable:no-unsafe-any
 import { window } from 'vscode';
 
 import * as notify from '../notify';
@@ -8,10 +7,8 @@ let showInfoSpy: jest.SpyInstance<typeof window.showInformationMessage>;
 
 describe('Notify Tests', () => {
   beforeEach(() => {
-    // tslint:disable-next-line:no-any
-    showErrorSpy = jest.spyOn(window, 'showErrorMessage') as any;
-    // tslint:disable-next-line:no-any
-    showInfoSpy = jest.spyOn(window, 'showInformationMessage') as any;
+    showErrorSpy = jest.spyOn(window, 'showErrorMessage');
+    showInfoSpy = jest.spyOn(window, 'showInformationMessage');
   });
   afterEach(() => {
     jest.resetAllMocks();

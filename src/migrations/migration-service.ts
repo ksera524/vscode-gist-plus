@@ -7,51 +7,46 @@ type Migration = [
   (state: Memento, callback: (error?: Error) => void) => void
 ];
 
+interface MigrationUpResult {
+  migrated: string[];
+}
+
 class MigrationService {
-  public static getInstance = (): MigrationService =>
-    (MigrationService.instance = MigrationService.instance
-      ? MigrationService.instance
-      : // tslint:disable-next-line:semicolon
-        new MigrationService());
-
-  private static instance?: MigrationService;
-
   private migrations: Migration[] = [];
-  private state: Memento = workspace.getConfiguration() as unknown as Memento;
+  private state: Memento;
 
-  private constructor() {}
+  public constructor(state?: Memento) {
+    this.state = state || (workspace.getConfiguration() as unknown as Memento);
+  }
 
   public configure(options: { migrations: Migration[]; state: Memento }): void {
     this.state = options.state;
     this.migrations = options.migrations;
   }
 
-  public up(
-    cb: (err: Error | undefined, results: { migrated: string[] }) => void
-  ): void {
+  public async up(): Promise<MigrationUpResult> {
     const migrated: string[] = [];
-    let error: Error | undefined;
 
-    try {
-      this.migrations.forEach((m) => {
-        const [migrationName, migrationFn] = m;
-        if (this.do(migrationName)) {
-          logger.debug(`migrating ${migrationName}`);
-          migrationFn(this.state, (err) => {
-            if (err) {
-              logger.error(`could not migrate to ${migrationName}`);
-              throw err;
-            }
-            this.recordMigration(migrationName);
-            migrated.push(migrationName);
-          });
-        }
-      });
-    } catch (err) {
-      error = err instanceof Error ? err : new Error('unknown migration error');
+    for (const migration of this.migrations) {
+      const [migrationName, migrationFn] = migration;
+      if (!this.do(migrationName)) {
+        continue;
+      }
+
+      logger.debug(`migrating ${migrationName}`);
+
+      try {
+        await this.runMigration(migrationFn);
+      } catch (err) {
+        logger.error(`could not migrate to ${migrationName}`);
+        throw err instanceof Error ? err : new Error('unknown migration error');
+      }
+
+      await this.recordMigration(migrationName);
+      migrated.push(migrationName);
     }
 
-    cb(error, { migrated });
+    return { migrated };
   }
 
   private do(migrationName: string): boolean {
@@ -60,12 +55,28 @@ class MigrationService {
     return pastMigrations.indexOf(migrationName) === -1;
   }
 
-  private recordMigration(migrationName: string): void {
+  private async recordMigration(migrationName: string): Promise<void> {
     const pastMigrations = this.state.get('migrations', '').split(';');
     pastMigrations.push(migrationName);
-    this.state.update('migrations', pastMigrations.join(';'));
+    await this.state.update('migrations', pastMigrations.join(';'));
     logger.debug(`Applied Migration: ${migrationName}`);
+  }
+
+  private runMigration(
+    migrationFn: (state: Memento, callback: (error?: Error) => void) => void
+  ): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      migrationFn(this.state, (error?: Error) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+
+        resolve();
+      });
+    });
   }
 }
 
-export const migrations = MigrationService.getInstance();
+export { MigrationService };
+export const migrations = new MigrationService();
