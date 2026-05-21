@@ -1,5 +1,5 @@
 type Listener = number;
-type ListenerFn = (...args: any[]) => any;
+type ListenerFn = (...args: unknown[]) => unknown;
 
 type ListenerInitializer = (
   config: Configuration,

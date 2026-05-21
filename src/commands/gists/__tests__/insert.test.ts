@@ -1,4 +1,3 @@
-// tslint:disable:no-any no-magic-numbers no-unsafe-any
 import { window } from 'vscode';
 
 import { insert } from '../insert';
@@ -60,13 +59,13 @@ describe('open gist', () => {
     const logger = { debug: jest.fn(), error: errorMock, info: jest.fn() };
     insertFn = insert(
       { get: jest.fn() },
-      { gists, insights, logger } as any,
-      utilsMock as any
+      { gists, insights, logger } as Services,
+      utilsMock as Utils
     )[1];
-    window.activeTextEditor = <any>{
+    Reflect.set(window, 'activeTextEditor', {
       document: { getText: jest.fn() },
       selection: { isEmpty: true }
-    };
+    });
   });
   afterEach(() => {
     jest.clearAllMocks();
@@ -74,7 +73,7 @@ describe('open gist', () => {
   test('should log error when no editor', async () => {
     expect.assertions(1);
 
-    (<any>window.activeTextEditor) = undefined;
+    Reflect.set(window, 'activeTextEditor', undefined);
 
     await insertFn();
     expect(errorMock.mock.calls.length).toBe(1);
@@ -82,7 +81,7 @@ describe('open gist', () => {
   test('what happens when errors occur', async () => {
     expect.assertions(1);
 
-    (<any>utilsMock.input.quickPick).mockRejectedValueOnce(false);
+    (utilsMock.input.quickPick as jest.Mock).mockRejectedValueOnce(false);
 
     await insertFn();
     expect(errorMock.mock.calls.length).toBe(1);
@@ -92,7 +91,7 @@ describe('open gist', () => {
 
     await insertFn();
 
-    expect((<any>utilsMock).input.quickPick).toHaveBeenCalledWith([
+    expect((utilsMock as Utils).input.quickPick).toHaveBeenCalledWith([
       expect.any(Object),
       expect.any(Object)
     ]);
@@ -100,7 +99,7 @@ describe('open gist', () => {
   test('it should query for the users selected gist', async () => {
     expect.assertions(1);
 
-    (<any>utilsMock.input.quickPick).mockResolvedValueOnce({
+    (utilsMock.input.quickPick as jest.Mock).mockResolvedValueOnce({
       block: { id: '123' }
     });
 
@@ -111,7 +110,7 @@ describe('open gist', () => {
   test('it should prompt the user to select a file if more than one is available', async () => {
     expect.assertions(1);
 
-    (<any>utilsMock.input.quickPick).mockResolvedValueOnce({
+    (utilsMock.input.quickPick as jest.Mock).mockResolvedValueOnce({
       block: { id: '123' }
     });
 

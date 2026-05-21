@@ -3,9 +3,11 @@ interface Notify {
   info(...messages: string[]): void;
 }
 
+type GistModel = import('../types/gist').Gist;
+
 interface Input {
   prompt(message: string, defaultValue?: string): Promise<string>;
-  quickPick(list: Gist[]): Promise<QuickPickGist | undefined>;
+  quickPick(list: GistModel[]): Promise<QuickPickGist | undefined>;
 }
 
 interface GistDetails {

@@ -1,6 +1,7 @@
 import { commands, env, window } from 'vscode';
 
 import { GistCommands } from '../extension-commands';
+import { isGist } from './type-guards';
 
 const createConfirmation: CommandInitializer = (
   _config: Configuration,
@@ -16,8 +17,13 @@ const createConfirmation: CommandInitializer = (
     CopyGistURL = 'Copy Gist URL to Clipboard'
   }
 
-  const commandFn = async (gist: Gist): Promise<void> => {
+  const commandFn = async (gistValue: unknown): Promise<void> => {
     try {
+      if (!isGist(gistValue)) {
+        throw new Error('Invalid gist payload');
+      }
+
+      const gist = gistValue;
       const { url } = gist;
       logger.info(`Now presenting ${gist.description}`);
 

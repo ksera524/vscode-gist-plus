@@ -16,19 +16,25 @@ const create: CommandInitializer = (
   const commandFn = async (): Promise<void> => {
     let gistName = '';
     try {
-      const editor = window.activeTextEditor;
-      if (!editor) {
-        throw new Error('Open a file before creating');
+      const editor = window.activeTextEditor || window.visibleTextEditors[0];
+      const isUntitled =
+        editor?.document?.isUntitled === true ||
+        editor?.document?.uri?.scheme === 'untitled';
+      if (!editor || isUntitled) {
+        throw new Error('Save the file before creating a gist');
       }
+      const tmpFilename = utils.files.getFileName(editor.document);
       const selection = editor.selection;
       const content = editor.document.getText(
-        selection.isEmpty ? undefined : selection
+        selection?.isEmpty ? undefined : selection
       );
-      const tmpFilename = utils.files.getFileName(editor.document);
-      const filename =
-        (await utils.input.prompt('Enter filename', tmpFilename)) ||
-        tmpFilename;
-      const description = await utils.input.prompt('Enter description');
+      const normalizedContent = content || ' ';
+      const filenameInput =
+        (await utils.input.prompt('Enter filename', tmpFilename)) || '';
+      const filename = filenameInput.trim() || tmpFilename;
+      const descriptionInput =
+        (await utils.input.prompt('Enter description')) || '';
+      const description = descriptionInput.trim();
       const defaultValue = config.get<boolean>('defaultPrivate') ? 'N' : 'Y';
       const isPublic =
         (
@@ -41,7 +47,7 @@ const create: CommandInitializer = (
       gistName = description || filename;
 
       const gist = await gists.createGist(
-        { [filename]: { content } },
+        { [filename]: { content: normalizedContent } },
         description,
         isPublic
       );
