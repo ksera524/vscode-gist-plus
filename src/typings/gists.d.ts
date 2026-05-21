@@ -3,23 +3,20 @@ interface GistServiceOptions {
   rejectUnauthorized?: boolean;
   url?: string;
 }
-
-type GistModel = import('../types/gist').Gist;
-
 interface GistService {
   configure(options: GistServiceOptions): void;
   createGist(
     files: { [x: string]: { content: string } },
     description?: string,
     isPublic = true
-  ): Promise<GistModel>;
+  ): Promise<Gist>;
   deleteFile(id: string, filename: string): Promise<void>;
   deleteGist(id: string): Promise<void>;
-  getGist(id: string): Promise<GistModel>;
-  getGists(starred?: boolean): Promise<GistModel[]>;
+  getGist(id: string): Promise<Gist>;
+  getGists(starred?: boolean): Promise<Gist[]>;
   updateGist(
     id: string,
     filename: string,
     content: string | null
-  ): Promise<GistModel>;
+  ): Promise<Gist>;
 }

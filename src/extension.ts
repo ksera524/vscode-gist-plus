@@ -69,24 +69,25 @@ export function activate(context: ExtensionContext): void {
   /**
    * Execute Startup Commands
    */
-  void migrations
-    .up()
-    .catch((err: Error) => {
-      logger.error(err.message);
-    })
-    .finally(() => {
-      commands.executeCommand(StatusBarCommands.Update);
-      commands.executeCommand(GistCommands.UpdateAccessKey);
+  migrations.up((err) => {
+    commands.executeCommand(StatusBarCommands.Update);
+    commands.executeCommand(GistCommands.UpdateAccessKey);
 
-      if (previousVersion !== currentVersion) {
-        // TODO: show what's new
-        context.globalState.update('version', currentVersion);
-      }
-    });
+    if (err) {
+      logger.error(err.message);
+    }
+
+    if (previousVersion !== currentVersion) {
+      // TODO: show what's new
+      context.globalState.update('version', currentVersion);
+    }
+  });
 }
 
 export function deactivate(): void {
   // TODO: close open gist editors
+  // tslint:disable-next-line:no-unsafe-any
   disposables.commands.forEach((d) => d.dispose());
+  // tslint:disable-next-line:no-unsafe-any
   disposables.listeners.forEach((d) => d.dispose());
 }

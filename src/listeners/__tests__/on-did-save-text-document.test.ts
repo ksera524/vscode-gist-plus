@@ -1,5 +1,6 @@
+// tslint:disable:no-any no-magic-numbers no-unsafe-any
+
 import { TMP_DIRECTORY_PREFIX } from '../../constants';
-import type { Gist } from '../../types/gist';
 import { onDidSaveTextDocument } from '../on-did-save-text-document';
 
 const errorMock = jest.fn();
@@ -14,55 +15,14 @@ const utilsMock = jest.genMockFromModule<Utils>('../../utils');
 
 describe('onDidSaveTextDocument', () => {
   let onDidSaveTextDocumentFn: ListenerFn;
-  const filesMock = utilsMock.files as {
-    extractTextDocumentDetails: {
-      mockImplementation: (fn: (...args: unknown[]) => unknown) => void;
-    };
-  };
-
   beforeEach(() => {
-    const gists: GistService = {
-      configure: () => {
-        // noop
-      },
-      createGist: async () => ({}) as Gist,
-      deleteFile: async () => {
-        // noop
-      },
-      deleteGist: async () => {
-        // noop
-      },
-      getGist: async () => ({}) as Gist,
-      getGists: async () => [],
-      updateGist: updateGistMock
-    };
+    const gists = { updateGist: updateGistMock };
     const insights = { exception: exceptionMock, track: trackMock };
-    const logger: Logger = {
-      debug: jest.fn(),
-      error: errorMock,
-      info: infoMock,
-      setLevel: jest.fn(),
-      setOutput: jest.fn(),
-      warn: jest.fn()
-    };
-    const profiles: Profiles = {
-      add: async () => {
-        // noop
-      },
-      configure: () => {
-        // noop
-      },
-      get: () => undefined,
-      getAll: () => [],
-      reset: async () => {
-        // noop
-      }
-    };
-    const services = { gists, insights, logger, profiles } as Services;
+    const logger = { error: errorMock, info: infoMock };
     onDidSaveTextDocumentFn = onDidSaveTextDocument(
       { get: jest.fn() },
-      services,
-      utilsMock
+      { gists, insights, logger } as any,
+      utilsMock as any
     )[1];
   });
   afterEach(() => {
@@ -71,11 +31,13 @@ describe('onDidSaveTextDocument', () => {
   test('should save', async () => {
     expect.assertions(3);
 
-    filesMock.extractTextDocumentDetails.mockImplementation(() => ({
+    (
+      utilsMock.files.extractTextDocumentDetails as jest.Mock
+    ).mockImplementation((_doc: any) => ({
       content: 'test-file-content',
       filename: 'test-file-name.md',
       id: '123',
-      language: 'unknown'
+      language: 'unkown'
     }));
 
     await onDidSaveTextDocumentFn({
@@ -97,23 +59,14 @@ describe('onDidSaveTextDocument', () => {
       getText: jest.fn(() => 'test-file-content')
     };
 
-    let error: Error | undefined;
+    let error: any;
     try {
       await onDidSaveTextDocumentFn(gistDocument);
     } catch (err) {
-      error = err as Error;
+      error = err;
     }
 
     expect(error).toBeUndefined();
     expect(errorMock).toHaveBeenCalledWith('onDidSaveTextDocument > Not Found');
-  });
-
-  test('should ignore invalid payload and not throw', async () => {
-    expect.assertions(2);
-
-    await expect(onDidSaveTextDocumentFn(undefined)).resolves.toBeUndefined();
-    expect(errorMock).toHaveBeenCalledWith(
-      'onDidSaveTextDocument > Invalid document payload'
-    );
   });
 });

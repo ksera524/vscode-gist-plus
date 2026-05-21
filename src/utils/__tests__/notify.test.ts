@@ -1,3 +1,4 @@
+// tslint:disable:no-unsafe-any
 import { window } from 'vscode';
 
 import * as notify from '../notify';
@@ -7,8 +8,10 @@ let showInfoSpy: jest.SpyInstance<typeof window.showInformationMessage>;
 
 describe('Notify Tests', () => {
   beforeEach(() => {
-    showErrorSpy = jest.spyOn(window, 'showErrorMessage');
-    showInfoSpy = jest.spyOn(window, 'showInformationMessage');
+    // tslint:disable-next-line:no-any
+    showErrorSpy = jest.spyOn(window, 'showErrorMessage') as any;
+    // tslint:disable-next-line:no-any
+    showInfoSpy = jest.spyOn(window, 'showInformationMessage') as any;
   });
   afterEach(() => {
     jest.resetAllMocks();
@@ -25,7 +28,7 @@ describe('Notify Tests', () => {
     test('should ignore undefined messages', () => {
       expect.assertions(1);
 
-      notify.error('Foo', undefined, 'Bar');
+      notify.error('Foo', undefined as unknown as string, 'Bar');
 
       expect(showErrorSpy.mock.calls[0][0]).toBe('GIST ERROR: Foo > Bar');
     });

@@ -1,6 +1,7 @@
+// tslint:disable:no-any no-unsafe-any no-magic-numbers
+
 import { window } from 'vscode';
 
-import type { Gist } from '../../types/gist';
 import { prompt, quickPick } from '../input';
 
 const showInputBoxSpy = jest.spyOn(window, 'showInputBox');
@@ -27,28 +28,13 @@ describe('Input Tests', () => {
     test('should show quickpick pane', async () => {
       expect.assertions(2);
 
-      const mockGist: Gist = {
-        createdAt: '2024-01-01T00:00:00Z',
-        description: 'test gist',
-        fileCount: 1,
-        files: {
-          'file-one.txt': {
-            content: '',
-            filename: 'file-one.txt',
-            language: 'text',
-            raw_url: '',
-            size: 0,
-            type: 'text/plain'
-          }
-        },
+      const mockGist = {
+        files: { 'file-one.txt': { content: '' } },
         id: '123',
-        name: 'test gist',
-        public: true,
-        updatedAt: '2024-01-01T00:00:00Z',
-        url: 'https://example.com/gist/123'
+        name: 'test gist'
       };
 
-      await quickPick([mockGist]);
+      await quickPick([mockGist as any]);
 
       expect(showQuickPickSpy).toHaveBeenCalledTimes(1);
       expect(showQuickPickSpy).toHaveBeenCalledWith([

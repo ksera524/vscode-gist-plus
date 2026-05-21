@@ -1,9 +1,30 @@
+interface GistFile {
+  content: string;
+  filename: string;
+  language: string;
+  raw_url: string;
+  size: number;
+  type: string;
+}
+
+interface Gist {
+  createdAt: string;
+  description: string;
+  fileCount: number;
+  files: { [x: string]: GistFile };
+  id: string;
+  name: string;
+  public: boolean;
+  updatedAt: string;
+  url: string;
+}
+
 interface GistTextDocument {
   fileName: string;
-  getText(range?: unknown): string;
+  getText(range?: any): string;
 }
 interface QuickPickGist {
-  block: import('../types/gist').Gist;
+  block: Gist;
   /**
    * A human readable string which is rendered less prominent.
    */

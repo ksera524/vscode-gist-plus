@@ -1,3 +1,4 @@
+// tslint:disable:no-any no-magic-numbers
 import { window } from 'vscode';
 
 import { update } from '../update';
@@ -12,9 +13,9 @@ const createStatusBarItemMock = {
 const utilsMock = jest.genMockFromModule<Utils>('../../../utils');
 const debugMock = jest.fn();
 const errorMock = jest.fn();
-const getMock = jest.fn(() => ({ name: 'foo' }) as Services);
+const getMock = jest.fn(() => ({ name: 'foo' }) as any);
 
-createStatusBarItem.mockImplementation(() => createStatusBarItemMock as Services);
+createStatusBarItem.mockImplementation(() => createStatusBarItemMock as any);
 
 describe('update status bar', () => {
   let updateFn: CommandFn;
@@ -24,7 +25,7 @@ describe('update status bar', () => {
     const logger = { debug: debugMock, error: errorMock };
     updateFn = update(
       { get: jest.fn() },
-      { insights, logger, profiles } as Services,
+      { insights, logger, profiles } as any,
       utilsMock
     )[1];
   });

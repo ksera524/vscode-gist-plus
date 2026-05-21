@@ -1,5 +1,5 @@
 type Command = string;
-type CommandFn = (...args: unknown[]) => Promise<void> | void;
+type CommandFn = (...args: any[]) => Promise<void> | void;
 
 type CommandInitializer = (
   _config: Configuration,
