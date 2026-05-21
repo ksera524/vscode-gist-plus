@@ -1,3 +1,4 @@
+// tslint:disable:no-any no-magic-numbers no-unsafe-any
 import { window } from 'vscode';
 
 import { deleteFile } from '../delete-file';
@@ -14,12 +15,12 @@ describe('open gist', () => {
     const logger = { error: errorMock, info: jest.fn() };
     deleteFileFn = deleteFile(
       { get: jest.fn() },
-      { gists, insights, logger } as Services,
-      utilsMock as Services
+      { gists, insights, logger } as any,
+      utilsMock as any
     )[1];
-    (window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }).activeTextEditor = undefined;
-    (window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }).visibleTextEditors = [];
-    (utilsMock.files.extractTextDocumentDetails as jest.Mock).mockReturnValue({
+    (<any>window).activeTextEditor = undefined;
+    (<any>window).visibleTextEditors = [];
+    (<any>utilsMock.files.extractTextDocumentDetails).mockReturnValue({
       filename: 'foo',
       id: '123'
     });
@@ -30,9 +31,9 @@ describe('open gist', () => {
   test('what happens when errors occur', async () => {
     expect.assertions(1);
 
-    (window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }).activeTextEditor = { document: {} };
+    (<any>window).activeTextEditor = { document: {} };
 
-    (utilsMock.input.prompt as jest.Mock).mockResolvedValueOnce('DELETE');
+    (<any>utilsMock.input.prompt).mockResolvedValueOnce('DELETE');
     deleteFileMock.mockRejectedValueOnce(false);
 
     await deleteFileFn();
@@ -41,8 +42,8 @@ describe('open gist', () => {
   test('it deletes the open file', async () => {
     expect.assertions(1);
 
-    (window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }).activeTextEditor = { document: { gist: { id: '123' } } };
-    (utilsMock.input.prompt as jest.Mock).mockResolvedValueOnce('DELETE');
+    (<any>window).activeTextEditor = { document: { gist: { id: '123' } } };
+    (<any>utilsMock.input.prompt).mockResolvedValueOnce('DELETE');
 
     await deleteFileFn();
 

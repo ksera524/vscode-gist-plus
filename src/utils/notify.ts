@@ -1,9 +1,6 @@
 import { window } from 'vscode';
 
-const _notify = (
-  type: 'error' | 'info',
-  ...messages: Array<string | undefined>
-): void => {
+const _notify = (type: 'error' | 'info', ...messages: string[]): void => {
   const formattedMessage = [...messages]
     .filter((m?: string) => typeof m !== 'undefined')
     .join(' > ');
@@ -18,10 +15,10 @@ const _notify = (
   }
 };
 
-export const error = (...messages: Array<string | undefined>): void => {
+export const error = (...messages: string[]): void => {
   _notify('error', ...messages);
 };
 
-export const info = (...messages: Array<string | undefined>): void => {
+export const info = (...messages: string[]): void => {
   _notify('info', ...messages);
 };

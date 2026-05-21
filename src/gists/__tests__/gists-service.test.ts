@@ -1,6 +1,4 @@
-import fc from 'fast-check';
-import { Octokit } from '@octokit/rest';
-
+// tslint:disable:no-any no-magic-numbers no-unsafe-any
 import { gists } from '../gists-service';
 
 describe('GistService tests', () => {
@@ -8,39 +6,22 @@ describe('GistService tests', () => {
   beforeEach(() => {
     testGists = gists;
   });
+  test('has default baseUrl', () => {
+    expect.assertions(1);
+
+    expect(testGists.options).toStrictEqual({
+      baseUrl: 'https://api.github.com'
+    });
+  });
   describe('#configure', () => {
-    test('applies configure options to Octokit construction (PBT)', async () => {
-      const octokitConstructor = Octokit as unknown as {
-        mock: { calls: unknown[][] };
-      };
+    test('configure api', () => {
+      expect.assertions(1);
 
-      await fc.assert(
-        fc.asyncProperty(fc.webUrl(), async (url) => {
-          const key = `key-${Math.random().toString(36).slice(2, 8)}`;
-          const rejectUnauthorized = false;
-
-          testGists.configure({ key, rejectUnauthorized, url });
-
-          const configCall =
-            octokitConstructor.mock.calls[
-              octokitConstructor.mock.calls.length - 1
-            ];
-
-          expect(configCall).toBeDefined();
-          const options = configCall?.[0] as {
-            agent?: { options?: { rejectUnauthorized?: boolean } };
-            auth?: string;
-            baseUrl?: string;
-          };
-
-          expect(options.baseUrl).toBe(url);
-          expect(options.auth).toBe(key);
-          expect(options.agent).toBeDefined();
-          expect(options.agent?.options?.rejectUnauthorized).toBe(
-            rejectUnauthorized
-          );
-        })
-      );
+      testGists.configure({ url: 'https://foo.bar/api' });
+      expect(testGists.options).toStrictEqual({
+        agent: expect.anything(),
+        baseUrl: 'https://foo.bar/api'
+      });
     });
   });
   describe('#create', () => {

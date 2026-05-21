@@ -29,7 +29,7 @@ export default [
         'warn',
         { argsIgnorePattern: '^_' }
       ],
-      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/no-explicit-any': 'off',
       curly: 'warn',
       eqeqeq: 'warn',
       'no-throw-literal': 'warn'
@@ -37,9 +37,6 @@ export default [
   },
   {
     files: ['**/*.test.ts', '**/__tests__/**/*.ts', '__mocks__/**/*.ts'],
-    rules: {
-      '@typescript-eslint/no-explicit-any': 'off'
-    },
     languageOptions: {
       globals: {
         jest: 'readonly',

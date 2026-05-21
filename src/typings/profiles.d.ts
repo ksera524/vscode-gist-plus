@@ -23,7 +23,7 @@ interface Memento {
    * @param key A string.
    * @param value A value. MUST not contain cyclic references.
    */
-  update(key: string, value: unknown): Thenable<void>;
+  update(key: string, value: any): Thenable<void>;
 }
 
 interface RawProfile {
@@ -36,10 +36,10 @@ interface Profile extends RawProfile {
   name: string;
 }
 
-interface Profiles {
-  add(name: string, key: string, url?: string, active?: boolean): Promise<void>;
-  configure(options: { state: Memento }): void;
-  get(): Profile | undefined;
-  getAll(): Profile[];
-  reset(): Promise<void>;
+class Profiles {
+  public add(name: string, key: string, url?: string, active?: boolean): void;
+  public configure(options: { state: Memento }): void;
+  public get(): Profile | undefined;
+  public getAll(): Profile[];
+  public reset(): void;
 }
