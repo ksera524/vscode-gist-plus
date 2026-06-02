@@ -1,71 +1,79 @@
 import { Octokit, RestEndpointMethodTypes } from '@octokit/rest';
 import * as https from 'https';
 
-import { GISTS_BASE_URL } from '../constants';
+import { GISTS_BASE_URL } from '../constants.js';
 
 const DEFAULT_OPTIONS = {
   baseUrl: GISTS_BASE_URL
 };
 
-class GistsService {
-  public static getInstance = (): GistsService =>
-    // TODO: permanently disable the semicolon rule
-    // tslint:disable-next-line:semicolon
-    GistsService.instance ? GistsService.instance : new GistsService();
-
-  private static readonly instance?: GistsService;
-
-  private octokit: Octokit;
-  private options = DEFAULT_OPTIONS;
-
-  private constructor() {
-    this.octokit = new Octokit(this.options);
-  }
-
-  public configure(options: {
+interface GistsService {
+  configure(options: {
     key?: string;
     rejectUnauthorized?: boolean;
     url?: string;
-  }): void {
-    const url = options.url || 'https://api.github.com';
-    const rejectUnauthorized = options.rejectUnauthorized || true;
-    const agent = new https.Agent({ rejectUnauthorized });
-    const config = { baseUrl: url, agent };
-    this.options = config || this.options;
-    this.octokit = new Octokit({ auth: options.key, ...this.options });
-  }
-
-  public create(
+  }): void;
+  create(
     params: RestEndpointMethodTypes['gists']['create']['parameters']
-  ) {
-    return this.octokit.gists.create(params);
-  }
-
-  public delete(
+  ): ReturnType<Octokit['gists']['create']>;
+  delete(
     params: RestEndpointMethodTypes['gists']['delete']['parameters']
-  ) {
-    return this.octokit.gists.delete(params);
-  }
-
-  public get(params: RestEndpointMethodTypes['gists']['get']['parameters']) {
-    return this.octokit.gists.get(params);
-  }
-
-  public list(params?: RestEndpointMethodTypes['gists']['list']['parameters']) {
-    return this.octokit.gists.list(params);
-  }
-
-  public listStarred(
+  ): ReturnType<Octokit['gists']['delete']>;
+  get(
+    params: RestEndpointMethodTypes['gists']['get']['parameters']
+  ): ReturnType<Octokit['gists']['get']>;
+  list(
+    params?: RestEndpointMethodTypes['gists']['list']['parameters']
+  ): ReturnType<Octokit['gists']['list']>;
+  listStarred(
     params?: RestEndpointMethodTypes['gists']['listStarred']['parameters']
-  ) {
-    return this.octokit.gists.listStarred(params);
-  }
-
-  public update(
+  ): ReturnType<Octokit['gists']['listStarred']>;
+  update(
     params: RestEndpointMethodTypes['gists']['update']['parameters']
-  ) {
-    return this.octokit.gists.update(params);
-  }
+  ): ReturnType<Octokit['gists']['update']>;
 }
 
-export const gists = GistsService.getInstance();
+const createGistsService = (): GistsService => {
+  let options = DEFAULT_OPTIONS;
+  let octokit = new Octokit(options);
+
+  return {
+    configure: (configOptions: {
+      key?: string;
+      rejectUnauthorized?: boolean;
+      url?: string;
+    }): void => {
+      const url = configOptions.url || 'https://api.github.com';
+      const rejectUnauthorized = configOptions.rejectUnauthorized ?? true;
+      const agent = new https.Agent({ rejectUnauthorized });
+      const nextOptions = { baseUrl: url, agent };
+      options = nextOptions;
+      octokit = new Octokit({ auth: configOptions.key, ...options });
+    },
+    create: (
+      params: RestEndpointMethodTypes['gists']['create']['parameters']
+    ) =>
+      octokit.request('POST /gists', {
+        ...params,
+        headers: {
+          accept: 'application/vnd.github+json'
+        }
+      }),
+    delete: (
+      params: RestEndpointMethodTypes['gists']['delete']['parameters']
+    ) => octokit.gists.delete(params),
+    get: (params: RestEndpointMethodTypes['gists']['get']['parameters']) =>
+      octokit.gists.get(params),
+    list: (params?: RestEndpointMethodTypes['gists']['list']['parameters']) =>
+      octokit.gists.list(params),
+    listStarred: (
+      params?: RestEndpointMethodTypes['gists']['listStarred']['parameters']
+    ) => octokit.gists.listStarred(params),
+    update: (
+      params: RestEndpointMethodTypes['gists']['update']['parameters']
+    ) => octokit.gists.update(params)
+  };
+};
+
+export { createGistsService };
+export const gists = createGistsService();

@@ -1,68 +1,80 @@
 import { Memento, workspace } from 'vscode';
 
-class ProfileService {
-  public static getInstance = (): ProfileService =>
-    // TODO: permanently disable the semicolon rule
-    // tslint:disable-next-line:semicolon
-    ProfileService.instance ? ProfileService.instance : new ProfileService();
+const isMemento = (value: unknown): value is Memento =>
+  typeof value === 'object' &&
+  value !== null &&
+  'get' in value &&
+  'update' in value;
 
-  private static readonly instance?: ProfileService;
+const getDefaultState = (): Memento => {
+  const config = workspace.getConfiguration();
 
-  private state: Memento;
-
-  private constructor() {
-    // intentionally left blank
-    this.state = workspace.getConfiguration() as unknown as Memento;
+  if (!isMemento(config)) {
+    throw new Error('Invalid configuration state');
   }
 
-  public add(
-    name: string,
-    key: string,
-    url: string = 'https://api.github.com',
-    active: boolean = false
-  ): void {
-    const p = this.getRawProfiles();
-    const currentState = Object.keys(p)
-      .map((profile) => ({
-        [profile]: { key: p[profile].key, url: p[profile].url, active: false }
-      }))
-      .reduce((prev, curr) => ({ ...prev, ...curr }), {});
-    this.state.update('profiles', {
-      ...currentState,
-      [name]: { active, key, url }
-    });
-  }
+  return config;
+};
 
-  public configure(options: { state: Memento }): void {
-    const { state } = options;
+const createProfileService = (initialState?: Memento): Profiles => {
+  let state = initialState || getDefaultState();
 
-    this.state = state;
-  }
+  const getRawProfiles = (): { [x: string]: RawProfile } =>
+    state.get<{ [x: string]: RawProfile }>('profiles', {});
 
-  public get(): Profile | undefined {
-    const currentProfile = this.getAll().filter((p) => p.active);
+  return {
+    add: async (
+      name: string,
+      key: string,
+      url: string = 'https://api.github.com',
+      active: boolean = false
+    ): Promise<void> => {
+      const existingProfiles = getRawProfiles();
+      const currentState = Object.entries(existingProfiles)
+        .map(([profileName, profile]) => ({
+          [profileName]: {
+            active: false,
+            key: profile.key,
+            url: profile.url
+          }
+        }))
+        .reduce((prev, curr) => ({ ...prev, ...curr }), {});
 
-    return currentProfile[0] || undefined;
-  }
+      await state.update('profiles', {
+        ...currentState,
+        [name]: { active, key, url }
+      });
+    },
+    configure: (options: { state: Memento }): void => {
+      state = options.state;
+    },
+    get: (): Profile | undefined => {
+      const rawProfiles = getRawProfiles();
 
-  public getAll(): Profile[] {
-    const p = this.getRawProfiles();
+      return Object.entries(rawProfiles)
+        .map(([profileName, profile]) => ({
+          active: profile.active,
+          key: profile.key,
+          name: profileName,
+          url: profile.url
+        }))
+        .find((profile) => profile.active);
+    },
+    getAll: (): Profile[] => {
+      const rawProfiles = getRawProfiles();
 
-    return Object.keys(p).map((profileName) => ({
-      active: p[profileName].active,
-      key: p[profileName].key,
-      name: profileName,
-      url: p[profileName].url
-    }));
-  }
+      return Object.entries(rawProfiles).map(([profileName, profile]) => ({
+        active: profile.active,
+        key: profile.key,
+        name: profileName,
+        url: profile.url
+      }));
+    },
+    reset: async (): Promise<void> => {
+      await state.update('profiles', undefined);
+    }
+  };
+};
 
-  public reset(): void {
-    this.state.update('profiles', undefined);
-  }
-
-  private getRawProfiles(): { [x: string]: RawProfile } {
-    return this.state.get<{}>('profiles', {});
-  }
-}
-
-export const profiles = ProfileService.getInstance();
+export { createProfileService };
+export const profiles = createProfileService();

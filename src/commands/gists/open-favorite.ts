@@ -1,8 +1,9 @@
 import { window } from 'vscode';
 
-import { GistCommands } from '../extension-commands';
+import { GistCommands } from '../extension-commands.js';
+import type { Gist } from '../../types/gist.js';
 
-import { openGist } from './utils';
+import { openGist } from './utils.js';
 
 const openFavorite: CommandInitializer = (
   config: Configuration,

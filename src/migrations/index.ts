@@ -1,2 +1,2 @@
-export * from './migration-service';
-export * from './migrations';
+export * from './migration-service.js';
+export * from './migrations.js';

@@ -1,6 +1,6 @@
 import { commands, window } from 'vscode';
 
-import { GistCommands } from '../extension-commands';
+import { GistCommands } from '../extension-commands.js';
 
 const deleteFile: CommandInitializer = (
   _config: Configuration,
@@ -28,7 +28,6 @@ const deleteFile: CommandInitializer = (
           return;
         }
         logger.info(`Deleting File "${id}"`);
-        // tslint:disable-next-line:no-null-keyword
         await gists.deleteFile(id, filename);
         commands.executeCommand('workbench.action.closeActiveEditor');
         utils.notify.info('Deleted File');

@@ -1,7 +1,6 @@
-// tslint:disable:no-any no-magic-numbers no-unsafe-any
 import { commands, QuickPickItem, window } from 'vscode';
 
-import { openFavorite } from '../open-favorite';
+import { openFavorite } from '../open-favorite.js';
 
 jest.mock('fs');
 jest.mock('path');
@@ -52,10 +51,10 @@ describe('open favorite gist', () => {
     const logger = { error: errorMock, info: jest.fn() };
     openFavoriteFn = openFavorite(
       { get: jest.fn() },
-      { gists, insights, logger } as any,
-      utilsMock as any
+      { gists, insights, logger } as Services,
+      utilsMock as Services
     )[1];
-    (<any>window).activeTextEditor = undefined;
+    (window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }).activeTextEditor = undefined;
   });
   afterEach(() => {
     jest.clearAllMocks();
@@ -90,7 +89,7 @@ describe('open favorite gist', () => {
         id: '123'
       },
       label: 'foo'
-    } as any);
+    } as Services);
 
     await openFavoriteFn();
 

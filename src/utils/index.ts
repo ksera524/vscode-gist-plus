@@ -1,5 +1,5 @@
-import * as files from './file';
-import * as input from './input';
-import * as notify from './notify';
+import * as files from './file.js';
+import * as input from './input.js';
+import * as notify from './notify.js';
 
 export { files, input, notify };

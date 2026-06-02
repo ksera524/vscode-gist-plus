@@ -1,4 +1,4 @@
-import { GistCommands } from '../extension-commands';
+import { GistCommands } from '../extension-commands.js';
 
 const updateAccessKey: CommandInitializer = (
   config: Configuration,

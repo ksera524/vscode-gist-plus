@@ -10,7 +10,8 @@ import {
   WorkspaceEdit
 } from 'vscode';
 
-import * as utils from '../../utils';
+import type { Gist } from '../../types/gist.js';
+import * as utils from '../../utils/index.js';
 
 const _openDocument = async (file: string): Promise<void> => {
   const doc = await workspace.openTextDocument(file);
@@ -32,10 +33,18 @@ const selectFile = async (gist: {
       : await Promise.resolve(files[0]);
 
   return selectedFile
-    ? {
-        content: gist.files[selectedFile.label].content,
-        filename: selectedFile.label
-      }
+    ? (() => {
+        const selected = gist.files[selectedFile.label];
+
+        if (!selected || typeof selected.content !== 'string') {
+          throw new Error('Invalid gist file content');
+        }
+
+        return {
+          content: selected.content,
+          filename: selectedFile.label
+        };
+      })()
     : undefined;
 };
 
@@ -82,7 +91,7 @@ const insertText = async (
       const lines = text.trim().split('\n');
       const endPosition = new Position(
         lines.length + range.start.line - 1,
-        lines[lines.length - 1].length
+        (lines[lines.length - 1] || '').length
       );
 
       const selection = new Selection(range.start, endPosition);

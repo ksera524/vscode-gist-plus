@@ -1,6 +1,6 @@
 import { StatusBarAlignment, window } from 'vscode';
 
-import { ProfileCommands, StatusBarCommands } from '../extension-commands';
+import { ProfileCommands, StatusBarCommands } from '../extension-commands.js';
 
 const update: CommandInitializer = (
   _config: Configuration,

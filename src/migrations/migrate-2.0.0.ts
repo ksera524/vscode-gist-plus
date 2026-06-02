@@ -1,6 +1,6 @@
 import { Memento } from 'vscode';
 
-import { GISTS_BASE_URL } from '../constants';
+import { GISTS_BASE_URL } from '../constants.js';
 
 export const up = (
   state: Memento,

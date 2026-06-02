@@ -1,8 +1,7 @@
-// tslint:disable:no-any no-magic-numbers no-unsafe-any no-unbound-method
 import { commands, window } from 'vscode';
 
-import { TMP_DIRECTORY_PREFIX } from '../../../constants';
-import { create } from '../create';
+import { TMP_DIRECTORY_PREFIX } from '../../../constants.js';
+import { create } from '../create.js';
 
 jest.mock('fs');
 jest.mock('path');
@@ -35,13 +34,14 @@ describe('create gist', () => {
   let createFn: CommandFn;
   const configGetMock = jest.fn();
   beforeEach(() => {
+    (utilsMock.input.prompt as jest.Mock).mockReset();
     const gists = { createGist: createGistMock };
     const insights = { exception: jest.fn() };
     const logger = { error: errorMock };
     createFn = create(
       { get: configGetMock },
-      { gists, insights, logger } as any,
-      utilsMock as any
+      { gists, insights, logger } as Services,
+      utilsMock as Services
     )[1];
     configGetMock.mockImplementation((key: string) => {
       if (key === 'maxFiles') {
@@ -50,7 +50,9 @@ describe('create gist', () => {
 
       return false;
     });
-    (<any>window).activeTextEditor = undefined;
+    (
+      window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }
+    ).activeTextEditor = undefined;
   });
   afterEach(() => {
     jest.clearAllMocks();
@@ -73,7 +75,9 @@ describe('create gist', () => {
       selection: { isEmpty: true }
     };
 
-    (<any>window).activeTextEditor = editor;
+    (
+      window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }
+    ).activeTextEditor = editor;
 
     await createFn();
 
@@ -102,7 +106,9 @@ describe('create gist', () => {
       selection: { isEmpty: true }
     };
 
-    (<any>window).activeTextEditor = editor;
+    (
+      window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }
+    ).activeTextEditor = editor;
 
     await createFn();
 
@@ -115,6 +121,10 @@ describe('create gist', () => {
   test('when something goes wrong do not throw but log', async () => {
     expect.assertions(2);
 
+    createGistMock.mockImplementationOnce(() => {
+      throw new Error('forced create error');
+    });
+
     let error: any;
     try {
       await createFn();
@@ -124,6 +134,61 @@ describe('create gist', () => {
 
     expect(errorMock.mock.calls).toHaveLength(1);
     expect(error).toBeUndefined();
+  });
+
+  test('shows an error when no editor is available', async () => {
+    expect.assertions(2);
+    (utilsMock.input.prompt as jest.Mock).mockImplementation(
+      (_msg: string, defaultValue: string) =>
+        Promise.resolve(defaultValue || '')
+    );
+
+    (
+      window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }
+    ).activeTextEditor = undefined;
+    (
+      window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }
+    ).visibleTextEditors = [];
+
+    await createFn();
+
+    expect(createGistMock).not.toHaveBeenCalled();
+    expect(utilsMock.notify.error).toHaveBeenCalledWith(
+      'Could Not Create',
+      'Reason: Save the file before creating a gist'
+    );
+  });
+
+  test('uses first visible editor when active editor is unavailable', async () => {
+    expect.assertions(1);
+
+    (utilsMock.input.prompt as jest.Mock).mockImplementation(
+      (_msg: string, defaultValue: string) =>
+        Promise.resolve(defaultValue || '')
+    );
+
+    const fallbackEditor = {
+      document: {
+        fileName: `${TMP_DIRECTORY_PREFIX}_fallback_random_string/test-fallback.md`,
+        getText: jest.fn(() => 'fallback-content')
+      },
+      selection: { isEmpty: true }
+    };
+
+    (
+      window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }
+    ).activeTextEditor = undefined;
+    (
+      window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }
+    ).visibleTextEditors = [fallbackEditor];
+
+    await createFn();
+
+    expect(createGistMock).toHaveBeenCalledWith(
+      { 'test-fallback.md': { content: 'fallback-content' } },
+      '',
+      true
+    );
   });
 
   test('uses selection when there is an active selection', async () => {
@@ -138,7 +203,9 @@ describe('create gist', () => {
       getText: jest.fn(() => 'selected-text')
     };
 
-    (<any>window).activeTextEditor = {
+    (
+      window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }
+    ).activeTextEditor = {
       document: codeBlock,
       selection
     };
@@ -148,8 +215,58 @@ describe('create gist', () => {
     expect(codeBlock.getText).toHaveBeenCalledWith(selection);
     expect(createGistMock).toHaveBeenCalledWith(
       { 'test-file-name.md': { content: 'selected-text' } },
-      undefined,
+      '',
       true
+    );
+  });
+
+  test('shows an error for untitled editor documents', async () => {
+    expect.assertions(2);
+    (utilsMock.input.prompt as jest.Mock)
+      .mockResolvedValueOnce('Untitled-1.md')
+      .mockResolvedValueOnce('')
+      .mockResolvedValueOnce('Y');
+
+    (
+      window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }
+    ).activeTextEditor = {
+      document: {
+        fileName: 'Untitled-1',
+        getText: jest.fn(() => 'draft text'),
+        uri: { scheme: 'untitled' }
+      },
+      selection: { isEmpty: true }
+    };
+
+    await createFn();
+
+    expect(createGistMock).not.toHaveBeenCalled();
+    expect(utilsMock.notify.error).toHaveBeenCalledWith(
+      'Could Not Create',
+      'Reason: Save the file before creating a gist'
+    );
+  });
+
+  test('shows an error when no editor and filename input is whitespace only', async () => {
+    expect.assertions(2);
+    (utilsMock.input.prompt as jest.Mock)
+      .mockResolvedValueOnce('   ')
+      .mockResolvedValueOnce('aa')
+      .mockResolvedValueOnce('Y');
+
+    (
+      window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }
+    ).activeTextEditor = undefined;
+    (
+      window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }
+    ).visibleTextEditors = [];
+
+    await createFn();
+
+    expect(createGistMock).not.toHaveBeenCalled();
+    expect(utilsMock.notify.error).toHaveBeenCalledWith(
+      'Could Not Create',
+      'Reason: Save the file before creating a gist'
     );
   });
 
@@ -177,7 +294,9 @@ describe('create gist', () => {
       getText: jest.fn(() => 'test-file-content')
     };
 
-    (<any>window).activeTextEditor = {
+    (
+      window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }
+    ).activeTextEditor = {
       document: codeBlock,
       selection: { isEmpty: true }
     };

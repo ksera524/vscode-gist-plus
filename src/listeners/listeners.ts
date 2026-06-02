@@ -1,9 +1,9 @@
 import { Disposable, workspace } from 'vscode';
 
-import * as utils from '../utils';
+import * as utils from '../utils/index.js';
 
-import { getListener } from './extension-listeners';
-import { onDidSaveTextDocument } from './on-did-save-text-document';
+import { getListener } from './extension-listeners.js';
+import { onDidSaveTextDocument } from './on-did-save-text-document.js';
 
 const listenerInitializers: ListenerInitializer[] = [onDidSaveTextDocument];
 

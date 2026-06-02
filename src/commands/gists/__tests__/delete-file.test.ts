@@ -1,7 +1,6 @@
-// tslint:disable:no-any no-magic-numbers no-unsafe-any
 import { window } from 'vscode';
 
-import { deleteFile } from '../delete-file';
+import { deleteFile } from '../delete-file.js';
 
 const deleteFileMock = jest.fn();
 const errorMock = jest.fn();
@@ -15,12 +14,12 @@ describe('open gist', () => {
     const logger = { error: errorMock, info: jest.fn() };
     deleteFileFn = deleteFile(
       { get: jest.fn() },
-      { gists, insights, logger } as any,
-      utilsMock as any
+      { gists, insights, logger } as Services,
+      utilsMock as Services
     )[1];
-    (<any>window).activeTextEditor = undefined;
-    (<any>window).visibleTextEditors = [];
-    (<any>utilsMock.files.extractTextDocumentDetails).mockReturnValue({
+    (window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }).activeTextEditor = undefined;
+    (window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }).visibleTextEditors = [];
+    (utilsMock.files.extractTextDocumentDetails as jest.Mock).mockReturnValue({
       filename: 'foo',
       id: '123'
     });
@@ -31,9 +30,9 @@ describe('open gist', () => {
   test('what happens when errors occur', async () => {
     expect.assertions(1);
 
-    (<any>window).activeTextEditor = { document: {} };
+    (window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }).activeTextEditor = { document: {} };
 
-    (<any>utilsMock.input.prompt).mockResolvedValueOnce('DELETE');
+    (utilsMock.input.prompt as jest.Mock).mockResolvedValueOnce('DELETE');
     deleteFileMock.mockRejectedValueOnce(false);
 
     await deleteFileFn();
@@ -42,8 +41,8 @@ describe('open gist', () => {
   test('it deletes the open file', async () => {
     expect.assertions(1);
 
-    (<any>window).activeTextEditor = { document: { gist: { id: '123' } } };
-    (<any>utilsMock.input.prompt).mockResolvedValueOnce('DELETE');
+    (window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }).activeTextEditor = { document: { gist: { id: '123' } } };
+    (utilsMock.input.prompt as jest.Mock).mockResolvedValueOnce('DELETE');
 
     await deleteFileFn();
 

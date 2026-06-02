@@ -1,3 +1,1 @@
-module.exports = {
-  writeFileSync: jest.fn()
-};
+export const writeFileSync = jest.fn();

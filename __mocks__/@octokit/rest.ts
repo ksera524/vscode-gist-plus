@@ -7,6 +7,7 @@ const gistsResponseData = [
     description: 'gist one',
     files: {
       'one.md': {
+        content: 'one',
         filename: 'one.md',
         language: 'markdown',
         raw_url: 'https://foo.bar/api/test123/1',
@@ -14,6 +15,7 @@ const gistsResponseData = [
         type: 'text'
       },
       'two.md': {
+        content: 'two',
         filename: 'two.md',
         language: 'markdown',
         raw_url: 'https://foo.bar/api/test123/2',
@@ -31,6 +33,7 @@ const gistsResponseData = [
     description: 'gist two',
     files: {
       'one.md': {
+        content: 'one',
         filename: 'one.md',
         language: 'markdown',
         raw_url: 'https://foo.bar/api/test123/1',
@@ -38,6 +41,7 @@ const gistsResponseData = [
         type: 'text'
       },
       'two.md': {
+        content: 'two',
         filename: 'two.md',
         language: 'markdown',
         raw_url: 'https://foo.bar/api/test123/2',
@@ -64,6 +68,7 @@ const mockedGists = {
         created_at: new Date().toString(),
         description: params.description,
         files: params.files,
+        html_url: 'https://foo.bar',
         id: gistId,
         public: params.public,
         updated_at: new Date().toString()
@@ -92,11 +97,20 @@ const mockedGists = {
   )
 };
 
-module.exports = {
-  Octokit: jest.fn(function Octokit() {
-    return {
-      auth: jest.fn(),
-      gists: mockedGists
-    };
-  })
-};
+const mockedRequest = jest.fn((route, params) => {
+  if (route === 'POST /gists') {
+    return mockedGists.create(params);
+  }
+
+  return Promise.reject(
+    new Error(`Unsupported mocked route: ${String(route)}`)
+  );
+});
+
+export const Octokit = jest.fn(function Octokit() {
+  return {
+    auth: jest.fn(),
+    gists: mockedGists,
+    request: mockedRequest
+  };
+});

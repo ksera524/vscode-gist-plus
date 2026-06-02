@@ -1,5 +1,6 @@
-// tslint:disable:no-any no-unsafe-any no-magic-numbers
-import { profiles } from '../profile-service';
+import fc from 'fast-check';
+
+import { profiles } from '../profile-service.js';
 
 const mockState = {
   get: jest.fn(() => ({
@@ -20,10 +21,10 @@ describe('Profile Service Tests', () => {
     jest.clearAllMocks();
   });
   describe('#add', () => {
-    test('should add a profile', () => {
+    test('should add a profile', async () => {
       expect.assertions(3);
 
-      profiles.add('test name', 'test key', 'test url', true);
+      await profiles.add('test name', 'test key', 'test url', true);
 
       expect(mockState.get).toHaveBeenCalledTimes(1);
       expect(mockState.update).toHaveBeenCalledTimes(1);
@@ -44,7 +45,7 @@ describe('Profile Service Tests', () => {
     test('should return array with two profiles', () => {
       expect.assertions(2);
 
-      mockState.get.mockReturnValue({ ...gh, ...ghe } as any);
+      mockState.get.mockReturnValue({ ...gh, ...ghe } as Services);
 
       expect(profiles.getAll().length).toBe(2);
       expect(profiles.getAll()[1]).toStrictEqual({
@@ -69,7 +70,7 @@ describe('Profile Service Tests', () => {
         'GitHub Enterprise': { ...ghe['GitHub Enterprise'], active: true }
       };
 
-      mockState.get.mockReturnValue({ ...gh, ...ghe2 } as any);
+      mockState.get.mockReturnValue({ ...gh, ...ghe2 } as Services);
 
       expect(() => profiles.get()).not.toThrowError();
       expect(profiles.get()).toStrictEqual({
@@ -81,12 +82,35 @@ describe('Profile Service Tests', () => {
     });
   });
   describe('#reset', () => {
-    test('should reset profiles', () => {
+    test('should reset profiles', async () => {
       expect.assertions(1);
 
-      profiles.reset();
+      await profiles.reset();
 
       expect(mockState.update).toHaveBeenCalledWith('profiles', undefined);
+    });
+  });
+
+  describe('PBT invariants', () => {
+    test('getAll size matches raw profile key count (PBT)', async () => {
+      await fc.assert(
+        fc.asyncProperty(
+          fc.dictionary(
+            fc.string({ minLength: 1, maxLength: 12 }),
+            fc.record({
+              active: fc.boolean(),
+              key: fc.string({ minLength: 1, maxLength: 12 }),
+              url: fc.webUrl()
+            })
+          ),
+          async (rawProfiles) => {
+            mockState.get.mockReturnValue(rawProfiles);
+            expect(profiles.getAll()).toHaveLength(
+              Object.keys(rawProfiles).length
+            );
+          }
+        )
+      );
     });
   });
 });

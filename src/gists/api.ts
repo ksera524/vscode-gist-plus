@@ -1,73 +1,156 @@
 import { env } from 'vscode';
 
-import { GISTS_BASE_URL, GISTS_PER_PAGE } from '../constants';
+import { GISTS_BASE_URL, GISTS_PER_PAGE } from '../constants.js';
+import type { Gist, GistFile } from '../types/gist.js';
 
-import { gists } from './gists-service';
+import { gists } from './gists-service.js';
 
-interface GistFile {
-  content: string;
-  filename: string;
-  language: string;
-  raw_url: string;
-  size: number;
-  truncated: boolean;
-  type: string;
+interface ApiGistFile {
+  content?: string;
+  filename?: string;
+  language?: string;
+  raw_url?: string;
+  size?: number;
+  truncated?: boolean;
+  type?: string;
 }
 
 interface GistResponse {
   created_at: string;
-  description: string;
-  files: { [x: string]: GistFile };
-  html_url: string;
+  description: string | null;
+  files: { [x: string]: ApiGistFile };
+  html_url?: string;
   id: string;
   public: boolean;
   updated_at: string;
-  url: string;
+  url?: string;
 }
 
 type GistsResponse = GistResponse[];
 
-// tslint:disable:no-any
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null;
+
+const isGistResponse = (value: unknown): value is GistResponse => {
+  if (!isRecord(value)) {
+    return false;
+  }
+
+  const hasUrl =
+    typeof value['html_url'] === 'string' || typeof value['url'] === 'string';
+
+  return (
+    typeof value['created_at'] === 'string' &&
+    (typeof value['description'] === 'string' ||
+      value['description'] === null) &&
+    isRecord(value['files']) &&
+    hasUrl &&
+    typeof value['id'] === 'string' &&
+    typeof value['public'] === 'boolean' &&
+    typeof value['updated_at'] === 'string'
+  );
+};
+
 const prepareError = (err: Error): Error => {
   try {
     return new Error(
-      (JSON.parse(err && err.message) || { message: 'unkown' }).message
+      (JSON.parse(err && err.message) || { message: 'unknown' }).message
     );
   } catch {
     return err;
   }
 };
-// tslint:enable:no-any
+
+const normalizeCreateFiles = (files?: {
+  [x: string]: { content: string };
+}): { [x: string]: { content: string } } => {
+  const normalized: { [x: string]: { content: string } } = {};
+
+  if (files && typeof files === 'object') {
+    for (const [filename, file] of Object.entries(files)) {
+      const trimmed = filename.trim();
+      if (!trimmed || !file || typeof file.content !== 'string') {
+        continue;
+      }
+      normalized[trimmed] = { content: file.content || ' ' };
+    }
+  }
+
+  if (Object.keys(normalized).length === 0) {
+    return { 'untitled.txt': { content: ' ' } };
+  }
+
+  return normalized;
+};
 
 const formatGist = (gist: unknown): Gist => {
-  if (typeof gist !== 'object') {
-    // TODO: consider throwing an error
-    return <Gist>{};
+  if (!isGistResponse(gist)) {
+    throw new Error('Invalid gist payload');
   }
-  const g = <GistResponse>gist;
+  const g = gist;
+  const files: { [x: string]: GistFile } = Object.keys(g.files).reduce<{
+    [x: string]: GistFile;
+  }>((acc, key) => {
+    const file = g.files[key];
+    if (!file) {
+      return acc;
+    }
+    const normalized: GistFile = {
+      content: typeof file.content === 'string' ? file.content : ''
+    };
+
+    if (typeof file.filename === 'string') {
+      normalized.filename = file.filename;
+    }
+    if (typeof file.language === 'string') {
+      normalized.language = file.language;
+    }
+    if (typeof file.raw_url === 'string') {
+      normalized.raw_url = file.raw_url;
+    }
+    if (typeof file.size === 'number') {
+      normalized.size = file.size;
+    }
+    if (typeof file.type === 'string') {
+      normalized.type = file.type;
+    }
+
+    acc[key] = normalized;
+
+    return acc;
+  }, {});
+
   return {
     createdAt: new Intl.DateTimeFormat(env.language, {
       day: 'numeric',
       month: 'long',
       year: 'numeric'
     }).format(new Date(g.created_at)),
-    description: g.description,
+    description: g.description || '',
     fileCount: Object.keys(g.files).length,
-    files: g.files,
+    files,
     id: g.id,
-    name: g.description || Object.keys(g.files)[0],
+    name: g.description || Object.keys(g.files)[0] || '',
     public: g.public,
     updatedAt: new Intl.DateTimeFormat(env.language, {
       day: 'numeric',
       month: 'long',
       year: 'numeric'
     }).format(new Date(g.updated_at)),
-    url: g.html_url
+    url: g.html_url || g.url || ''
   };
 };
 
 const formatGists = (gistList: GistsResponse): Gist[] =>
   gistList.map(formatGist);
+
+const toGistsResponse = (value: unknown): GistsResponse => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter(isGistResponse);
+};
 
 const getGist = async (id: string): Promise<Gist> => {
   try {
@@ -88,9 +171,7 @@ const getGists = async (starred = false): Promise<Gist[]> => {
       per_page: GISTS_PER_PAGE
     });
 
-    // TODO: Octokit type definitions need updating.
-    // tslint:disable-next-line:no-any
-    return formatGists(results.data as any);
+    return formatGists(toGistsResponse(results.data));
   } catch (err) {
     throw prepareError(err as Error);
   }
@@ -128,9 +209,10 @@ const createGist = async (
   isPublic = true
 ): Promise<Gist> => {
   try {
+    const normalizedFiles = normalizeCreateFiles(files);
     const results = await gists.create({
       description,
-      files,
+      files: normalizedFiles,
       public: isPublic
     });
 
@@ -151,7 +233,6 @@ const deleteGist = async (id: string): Promise<void> => {
 const deleteFile = async (id: string, filename: string): Promise<void> => {
   try {
     await gists.update({
-      // tslint:disable-next-line:no-null-keyword
       files: { [filename]: { content: '' } },
       gist_id: id
     });

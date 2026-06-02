@@ -1,7 +1,6 @@
-// tslint:disable:no-any no-magic-numbers
 import { commands, window } from 'vscode';
 
-import { create } from '../create';
+import { create } from '../create.js';
 
 const utilsMock = jest.genMockFromModule<Utils>('../../../utils');
 const errorMock = jest.fn();
@@ -18,8 +17,8 @@ describe('create profile', () => {
     const profiles = { add: addMock };
     createFn = create(
       { get: jest.fn() },
-      { insights, logger, profiles } as any,
-      utilsMock as any
+      { insights, logger, profiles } as Services,
+      utilsMock as Services
     )[1];
   });
   afterEach(() => {

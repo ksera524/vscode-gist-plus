@@ -1,5 +1,4 @@
-// tslint:disable:no-any no-magic-numbers no-unsafe-any
-import { updateAccessKey } from '../update-access-key';
+import { updateAccessKey } from '../update-access-key.js';
 
 const utilsMock = jest.genMockFromModule<Utils>('../../../utils');
 const configureGistsMock = jest.fn();
@@ -15,8 +14,8 @@ describe('update access key', () => {
     const logger = { debug: jest.fn() };
     updateAccessKeyFn = updateAccessKey(
       { get: jest.fn() },
-      { gists, insights, logger, profiles } as any,
-      utilsMock as any
+      { gists, insights, logger, profiles } as Services,
+      utilsMock as Services
     )[1];
   });
   afterEach(() => {
@@ -44,8 +43,8 @@ describe('update access key', () => {
     const logger = { debug: jest.fn() };
     updateAccessKeyFn = updateAccessKey(
       { get: jest.fn() },
-      { gists, insights, logger, profiles } as any,
-      utilsMock as any
+      { gists, insights, logger, profiles } as Services,
+      utilsMock as Services
     )[1];
 
     updateAccessKeyFn();

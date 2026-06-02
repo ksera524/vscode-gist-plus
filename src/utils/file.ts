@@ -3,7 +3,7 @@ import * as os from 'os';
 import * as path from 'path';
 import { TextDocument, TextEditor } from 'vscode';
 
-import { TMP_DIRECTORY_PREFIX } from '../constants';
+import { TMP_DIRECTORY_PREFIX } from '../constants.js';
 
 const dirSync = (token: string): string => {
   const prefix = `${[TMP_DIRECTORY_PREFIX, token].join('_')}_`;
@@ -27,7 +27,12 @@ const filesSync = (
   const filePaths: string[] = [];
   for (const filename in files) {
     if (Object.prototype.hasOwnProperty.call(files, filename)) {
-      const { content } = files[filename];
+      const file = files[filename];
+      if (!file) {
+        continue;
+      }
+
+      const { content } = file;
       const filePath = path.join(directory, filename);
       fs.writeFileSync(filePath, content);
       filePaths.push(filePath);
@@ -51,7 +56,10 @@ const extractTextDocumentDetails = (
   const regexp = new RegExp(
     `.*${TMP_DIRECTORY_PREFIX}_([^_]*)_[^${sep}]*${sep}(.*)`
   );
-  const [fullPath, id, filename] = doc.fileName.match(regexp) || ['', '', ''];
+  const match = doc.fileName.match(regexp);
+  const fullPath = match?.[0] || '';
+  const id = match?.[1] || '';
+  const filename = match?.[2] || '';
   const content = doc.getText();
 
   const { languageId } = editor ? editor.document : { languageId: 'unknown' };

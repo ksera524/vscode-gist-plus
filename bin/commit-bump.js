@@ -1,4 +1,4 @@
-const { commit } = require('node-git-utils');
-const { bumpMessage } = require('./bump-msg');
+import { commit } from 'node-git-utils';
+import { bumpMessage } from './bump-msg.js';
 
 commit(bumpMessage);
