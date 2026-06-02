@@ -1,7 +1,7 @@
 import { commands, window } from 'vscode';
 
-import { TMP_DIRECTORY_PREFIX } from '../../../constants';
-import { create } from '../create';
+import { TMP_DIRECTORY_PREFIX } from '../../../constants.js';
+import { create } from '../create.js';
 
 jest.mock('fs');
 jest.mock('path');

@@ -1,7 +1,7 @@
 import { window } from 'vscode';
 
-import type { Gist } from '../../types/gist';
-import { prompt, quickPick } from '../input';
+import type { Gist } from '../../types/gist.js';
+import { prompt, quickPick } from '../input.js';
 
 const showInputBoxSpy = jest.spyOn(window, 'showInputBox');
 const showQuickPickSpy = jest.spyOn(window, 'showQuickPick');

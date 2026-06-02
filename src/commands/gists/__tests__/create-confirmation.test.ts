@@ -1,7 +1,7 @@
 import { commands, env, window } from 'vscode';
 
-import type { Gist } from '../../../types/gist';
-import { createConfirmation } from '../create-confirmation';
+import type { Gist } from '../../../types/gist.js';
+import { createConfirmation } from '../create-confirmation.js';
 
 const gistMock: Gist = {
   createdAt: new Date().toISOString(),

@@ -1,7 +1,7 @@
 import fc from 'fast-check';
 
-import { migrations } from '../migration-service';
-import type { Migration } from '../migration-service';
+import { migrations } from '../migration-service.js';
+import type { Migration } from '../migration-service.js';
 
 const state = {
   get: jest.fn(() => ''),

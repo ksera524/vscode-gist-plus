@@ -1,6 +1,6 @@
 import { OutputChannel } from 'vscode';
 
-import { LOGGER_LEVEL } from '../constants';
+import { LOGGER_LEVEL } from '../constants.js';
 
 export enum Levels {
   DEBUG = 0,

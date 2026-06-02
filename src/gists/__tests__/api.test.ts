@@ -6,8 +6,8 @@ import {
   getGist,
   getGists,
   updateGist
-} from '../api';
-import { gists } from '../gists-service';
+} from '../api.js';
+import { gists } from '../gists-service.js';
 
 describe('Gists API Tests', () => {
   afterAll(() => {

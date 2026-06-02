@@ -1,6 +1,6 @@
 import { window } from 'vscode';
 
-import { deleteFile } from '../delete-file';
+import { deleteFile } from '../delete-file.js';
 
 const deleteFileMock = jest.fn();
 const errorMock = jest.fn();

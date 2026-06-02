@@ -1,6 +1,6 @@
 import { commands, window } from 'vscode';
 
-import { select } from '../select';
+import { select } from '../select.js';
 
 const utilsMock = jest.genMockFromModule<Utils>('../../../utils');
 const errorMock = jest.fn();

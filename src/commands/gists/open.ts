@@ -1,6 +1,6 @@
-import { GistCommands } from '../extension-commands';
+import { GistCommands } from '../extension-commands.js';
 
-import { openGist } from './utils';
+import { openGist } from './utils.js';
 
 const open: CommandInitializer = (
   config: Configuration,

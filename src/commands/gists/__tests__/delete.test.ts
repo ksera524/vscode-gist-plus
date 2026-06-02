@@ -1,6 +1,6 @@
 import { window } from 'vscode';
 
-import { deleteCommand } from '../delete';
+import { deleteCommand } from '../delete.js';
 
 const deleteGistMock = jest.fn();
 const errorMock = jest.fn();

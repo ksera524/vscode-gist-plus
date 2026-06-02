@@ -6,14 +6,17 @@ import {
   workspace
 } from 'vscode';
 
-import { init as initCommands } from './commands';
-import { GistCommands, StatusBarCommands } from './commands/extension-commands';
-import { DEBUG } from './constants';
-import * as gists from './gists';
-import { init as initListeners } from './listeners';
-import { Levels, logger } from './logger';
-import { extensionMigrations, migrations } from './migrations';
-import { profiles } from './profiles';
+import { init as initCommands } from './commands/index.js';
+import {
+  GistCommands,
+  StatusBarCommands
+} from './commands/extension-commands.js';
+import { DEBUG } from './constants.js';
+import * as gists from './gists/index.js';
+import { init as initListeners } from './listeners/index.js';
+import { Levels, logger } from './logger/index.js';
+import { extensionMigrations, migrations } from './migrations/index.js';
+import { profiles } from './profiles/index.js';
 
 const disposables: { commands: Disposable[]; listeners: Disposable[] } = {
   commands: [],

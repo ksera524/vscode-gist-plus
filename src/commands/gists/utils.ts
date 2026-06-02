@@ -10,8 +10,8 @@ import {
   WorkspaceEdit
 } from 'vscode';
 
-import type { Gist } from '../../types/gist';
-import * as utils from '../../utils';
+import type { Gist } from '../../types/gist.js';
+import * as utils from '../../utils/index.js';
 
 const _openDocument = async (file: string): Promise<void> => {
   const doc = await workspace.openTextDocument(file);

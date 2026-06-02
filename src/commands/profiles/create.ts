@@ -4,7 +4,7 @@ import {
   GistCommands,
   ProfileCommands,
   StatusBarCommands
-} from '../extension-commands';
+} from '../extension-commands.js';
 
 const create: CommandInitializer = (
   _config: Configuration,

@@ -1,6 +1,6 @@
 import fc from 'fast-check';
 
-import { profiles } from '../profile-service';
+import { profiles } from '../profile-service.js';
 
 const mockState = {
   get: jest.fn(() => ({

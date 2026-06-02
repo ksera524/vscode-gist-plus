@@ -1,5 +1,5 @@
 import { window } from 'vscode';
-import type { Gist } from '../types/gist';
+import type { Gist } from '../types/gist.js';
 
 const prompt = async (
   message: string,

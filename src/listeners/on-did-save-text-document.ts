@@ -1,6 +1,6 @@
 import { window } from 'vscode';
 
-import { getListener, Listeners } from './extension-listeners';
+import { getListener, Listeners } from './extension-listeners.js';
 
 const onDidSaveTextDocument: ListenerInitializer = (
   _config: Configuration,

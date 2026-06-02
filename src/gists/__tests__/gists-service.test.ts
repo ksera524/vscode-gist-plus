@@ -1,7 +1,7 @@
 import fc from 'fast-check';
 import { Octokit } from '@octokit/rest';
 
-import { gists } from '../gists-service';
+import { gists } from '../gists-service.js';
 
 describe('GistService tests', () => {
   let testGists: any;

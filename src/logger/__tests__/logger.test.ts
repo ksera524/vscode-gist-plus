@@ -1,7 +1,7 @@
 import fc from 'fast-check';
 import type { OutputChannel } from 'vscode';
 
-import { Levels, createLogger, logger } from '../';
+import { Levels, createLogger, logger } from '../index.js';
 
 const appendLineMock = jest.fn();
 

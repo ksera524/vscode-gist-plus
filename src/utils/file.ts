@@ -3,7 +3,7 @@ import * as os from 'os';
 import * as path from 'path';
 import { TextDocument, TextEditor } from 'vscode';
 
-import { TMP_DIRECTORY_PREFIX } from '../constants';
+import { TMP_DIRECTORY_PREFIX } from '../constants.js';
 
 const dirSync = (token: string): string => {
   const prefix = `${[TMP_DIRECTORY_PREFIX, token].join('_')}_`;

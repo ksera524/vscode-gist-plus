@@ -1,6 +1,6 @@
-import { TMP_DIRECTORY_PREFIX } from '../../constants';
-import type { Gist } from '../../types/gist';
-import { onDidSaveTextDocument } from '../on-did-save-text-document';
+import { TMP_DIRECTORY_PREFIX } from '../../constants.js';
+import type { Gist } from '../../types/gist.js';
+import { onDidSaveTextDocument } from '../on-did-save-text-document.js';
 
 const errorMock = jest.fn();
 const exceptionMock = jest.fn();

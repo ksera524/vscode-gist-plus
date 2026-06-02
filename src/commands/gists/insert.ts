@@ -1,8 +1,8 @@
 import { window } from 'vscode';
 
-import { GistCommands } from '../extension-commands';
+import { GistCommands } from '../extension-commands.js';
 
-import { insertText, selectFile } from './utils';
+import { insertText, selectFile } from './utils.js';
 
 const insert: CommandInitializer = (
   _config: Configuration,

@@ -1,6 +1,6 @@
 import { commands, window } from 'vscode';
 
-import { open } from '../open';
+import { open } from '../open.js';
 
 jest.mock('fs');
 jest.mock('path');

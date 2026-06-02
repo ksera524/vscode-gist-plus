@@ -1,4 +1,4 @@
-import { isGist } from '../type-guards';
+import { isGist } from '../type-guards.js';
 
 describe('gist type guards', () => {
   test('returns true for a valid gist shape', () => {

@@ -1,9 +1,9 @@
 import { env } from 'vscode';
 
-import { GISTS_BASE_URL, GISTS_PER_PAGE } from '../constants';
-import type { Gist, GistFile } from '../types/gist';
+import { GISTS_BASE_URL, GISTS_PER_PAGE } from '../constants.js';
+import type { Gist, GistFile } from '../types/gist.js';
 
-import { gists } from './gists-service';
+import { gists } from './gists-service.js';
 
 interface ApiGistFile {
   content?: string;

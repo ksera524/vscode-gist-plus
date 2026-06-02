@@ -1,8 +1,8 @@
 import { commands, window } from 'vscode';
 
-import { TMP_DIRECTORY_PREFIX } from '../../../constants';
-import type { Gist } from '../../../types/gist';
-import { openInBrowser } from '../open-in-browser';
+import { TMP_DIRECTORY_PREFIX } from '../../../constants.js';
+import type { Gist } from '../../../types/gist.js';
+import { openInBrowser } from '../open-in-browser.js';
 
 jest.mock('fs');
 jest.mock('path');

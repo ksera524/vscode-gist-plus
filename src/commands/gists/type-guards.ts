@@ -1,4 +1,4 @@
-import type { Gist } from '../../types/gist';
+import type { Gist } from '../../types/gist.js';
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;

@@ -1,4 +1,4 @@
-import { updateAccessKey } from '../update-access-key';
+import { updateAccessKey } from '../update-access-key.js';
 
 const utilsMock = jest.genMockFromModule<Utils>('../../../utils');
 const configureGistsMock = jest.fn();

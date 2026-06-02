@@ -1,6 +1,6 @@
 import { window } from 'vscode';
 
-import { insertFavorite } from '../insert-favorite';
+import { insertFavorite } from '../insert-favorite.js';
 
 jest.mock('fs');
 jest.mock('path');

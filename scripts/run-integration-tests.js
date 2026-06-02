@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 const testEntry = path.join(process.cwd(), 'out', 'test', 'suite', 'index.js');
 
@@ -8,7 +8,7 @@ if (!fs.existsSync(testEntry)) {
   process.exit(0);
 }
 
-const { runTests } = require('@vscode/test-electron');
+import { runTests } from '@vscode/test-electron';
 
 runTests({
   extensionDevelopmentPath: process.cwd(),

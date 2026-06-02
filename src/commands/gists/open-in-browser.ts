@@ -1,8 +1,8 @@
 import { commands, Uri, window } from 'vscode';
 
-import { GistCommands } from '../extension-commands';
-import type { Gist } from '../../types/gist';
-import { isGist } from './type-guards';
+import { GistCommands } from '../extension-commands.js';
+import type { Gist } from '../../types/gist.js';
+import { isGist } from './type-guards.js';
 
 const openInBrowser: CommandInitializer = (
   _config: Configuration,

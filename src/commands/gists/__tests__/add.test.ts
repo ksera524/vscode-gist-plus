@@ -1,6 +1,6 @@
 import { TextEditor, window } from 'vscode';
 
-import { add } from '../add';
+import { add } from '../add.js';
 
 jest.mock('fs');
 jest.mock('path');

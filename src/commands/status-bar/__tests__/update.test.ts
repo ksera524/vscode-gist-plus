@@ -1,6 +1,6 @@
 import { window } from 'vscode';
 
-import { update } from '../update';
+import { update } from '../update.js';
 
 const createStatusBarItem = jest.spyOn(window, 'createStatusBarItem');
 const createStatusBarItemMock = {

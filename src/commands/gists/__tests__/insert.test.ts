@@ -1,6 +1,6 @@
 import { window } from 'vscode';
 
-import { insert } from '../insert';
+import { insert } from '../insert.js';
 
 jest.mock('fs');
 jest.mock('path');

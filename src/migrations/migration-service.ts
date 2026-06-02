@@ -1,6 +1,6 @@
 import { Memento, workspace } from 'vscode';
 
-import { logger } from '../logger';
+import { logger } from '../logger/index.js';
 
 const isMemento = (value: unknown): value is Memento =>
   typeof value === 'object' &&

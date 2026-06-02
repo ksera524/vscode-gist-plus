@@ -1,8 +1,8 @@
 import { commands, window } from 'vscode';
 
-import { GistCommands } from '../extension-commands';
+import { GistCommands } from '../extension-commands.js';
 
-import { openGist } from './utils';
+import { openGist } from './utils.js';
 
 const create: CommandInitializer = (
   config: Configuration,

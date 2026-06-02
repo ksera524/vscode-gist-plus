@@ -1,6 +1,6 @@
 import { commands, QuickPickItem, window } from 'vscode';
 
-import { openFavorite } from '../open-favorite';
+import { openFavorite } from '../open-favorite.js';
 
 jest.mock('fs');
 jest.mock('path');

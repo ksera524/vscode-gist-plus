@@ -1,6 +1,6 @@
 import { window, workspace } from 'vscode';
 
-import { insertText, openGist, selectFile } from '../utils';
+import { insertText, openGist, selectFile } from '../utils.js';
 
 const showQuickPickSpy = jest.spyOn(window, 'showQuickPick');
 const showTextDocumentSpy = jest.spyOn(window, 'showTextDocument');

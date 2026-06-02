@@ -107,12 +107,10 @@ const mockedRequest = jest.fn((route, params) => {
   );
 });
 
-module.exports = {
-  Octokit: jest.fn(function Octokit() {
-    return {
-      auth: jest.fn(),
-      gists: mockedGists,
-      request: mockedRequest
-    };
-  })
-};
+export const Octokit = jest.fn(function Octokit() {
+  return {
+    auth: jest.fn(),
+    gists: mockedGists,
+    request: mockedRequest
+  };
+});

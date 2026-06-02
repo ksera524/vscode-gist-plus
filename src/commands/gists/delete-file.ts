@@ -1,6 +1,6 @@
 import { commands, window } from 'vscode';
 
-import { GistCommands } from '../extension-commands';
+import { GistCommands } from '../extension-commands.js';
 
 const deleteFile: CommandInitializer = (
   _config: Configuration,

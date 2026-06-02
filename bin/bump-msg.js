@@ -1,5 +1,5 @@
-const { version } = require('../package.json');
+import pkg from '../package.json' with { type: 'json' };
 
-const bumpMessage = `chore(release): bump to v${version}`;
+const bumpMessage = `chore(release): bump to v${pkg.version}`;
 
-module.exports = { bumpMessage };
+export { bumpMessage };

@@ -1,7 +1,7 @@
 import { Octokit, RestEndpointMethodTypes } from '@octokit/rest';
 import * as https from 'https';
 
-import { GISTS_BASE_URL } from '../constants';
+import { GISTS_BASE_URL } from '../constants.js';
 
 const DEFAULT_OPTIONS = {
   baseUrl: GISTS_BASE_URL

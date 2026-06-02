@@ -1,10 +1,10 @@
 import { commands, Disposable } from 'vscode';
 
-import * as utils from '../utils';
+import * as utils from '../utils/index.js';
 
-import * as gists from './gists';
-import * as profiles from './profiles';
-import * as status from './status-bar';
+import * as gists from './gists/index.js';
+import * as profiles from './profiles/index.js';
+import * as status from './status-bar/index.js';
 
 const commandInitializers: CommandInitializer[] = [
   gists.add,

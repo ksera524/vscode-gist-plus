@@ -5,7 +5,7 @@ import {
   filesSync,
   fileSync,
   getFileName
-} from '../file';
+} from '../file.js';
 
 jest.mock('path');
 jest.mock('fs');

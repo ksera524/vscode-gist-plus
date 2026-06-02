@@ -1,6 +1,6 @@
 import { commands, window } from 'vscode';
 
-import { create } from '../create';
+import { create } from '../create.js';
 
 const utilsMock = jest.genMockFromModule<Utils>('../../../utils');
 const errorMock = jest.fn();

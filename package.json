@@ -5,6 +5,7 @@
   "version": "1.0.3",
   "publisher": "ksera524",
   "repository": "https://github.com/ksera524/vscode-gist-plus",
+  "type": "module",
   "engines": {
     "vscode": "^1.120.0"
   },
@@ -30,22 +31,12 @@
     "onCommand:extension.profile.select",
     "onCommand:extension.resetState"
   ],
-  "main": "./out/extension",
+  "main": "./out/extension.js",
   "files": [
-    "out/constants.js",
-    "out/extension.js",
-    "out/commands/**",
-    "out/gists/**",
-    "out/listeners/**",
-    "out/logger/**",
-    "out/migrations/**",
-    "out/profiles/**",
-    "out/utils/**",
+    "out/**",
     "images/**",
     "icon.png",
     "package.json",
-    "README.md",
-    "CHANGELOG.md",
     "LICENSE",
     "BACKERS.md"
   ],
@@ -147,7 +138,7 @@
     ]
   },
   "scripts": {
-    "compile": "tsc -p tsconfig.prod.json",
+    "compile": "tsc -p tsconfig.prod.json --noEmit && node ./scripts/build-extension.mjs",
     "lint": "eslint src",
     "prettier": "prettier --config .prettierrc.json --list-different 'src/**/*.ts'",
     "release": "standard-version",
@@ -156,7 +147,7 @@
     "test:watch": "vitest",
     "test": "npm run lint && npm run prettier && npm run test:unit",
     "vscode:prepublish": "npm run compile",
-    "watch": "tsc -watch -p tsconfig.prod.json"
+    "watch": "node ./scripts/build-extension.mjs --watch"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -167,6 +158,7 @@
     "@vitest/coverage-v8": "^4.1.6",
     "@vscode/test-electron": "^2.5.2",
     "eslint": "^10.3.0",
+    "esbuild": "^0.28.0",
     "fast-check": "^4.8.0",
     "prettier": "^3.8.3",
     "standard-version": "^9.5.0",

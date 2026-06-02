@@ -1,6 +1,6 @@
 import { window } from 'vscode';
 
-import * as notify from '../notify';
+import * as notify from '../notify.js';
 
 let showErrorSpy: jest.SpyInstance<typeof window.showErrorMessage>;
 let showInfoSpy: jest.SpyInstance<typeof window.showInformationMessage>;

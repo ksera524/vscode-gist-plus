@@ -1,7 +1,7 @@
 import { commands, env, window } from 'vscode';
 
-import { GistCommands } from '../extension-commands';
-import { isGist } from './type-guards';
+import { GistCommands } from '../extension-commands.js';
+import { isGist } from './type-guards.js';
 
 const createConfirmation: CommandInitializer = (
   _config: Configuration,
