@@ -28,6 +28,7 @@ interface GistsService {
   listStarred(
     params?: RestEndpointMethodTypes['gists']['listStarred']['parameters']
   ): ReturnType<Octokit['gists']['listStarred']>;
+  raw(url: string): Promise<{ data: string }>;
   update(
     params: RestEndpointMethodTypes['gists']['update']['parameters']
   ): ReturnType<Octokit['gists']['update']>;
@@ -69,6 +70,14 @@ const createGistsService = (): GistsService => {
     listStarred: (
       params?: RestEndpointMethodTypes['gists']['listStarred']['parameters']
     ) => octokit.gists.listStarred(params),
+    raw: (url: string) =>
+      octokit.request({
+        headers: {
+          accept: 'text/plain'
+        },
+        method: 'GET',
+        url
+      }) as Promise<{ data: string }>,
     update: (
       params: RestEndpointMethodTypes['gists']['update']['parameters']
     ) => octokit.gists.update(params)

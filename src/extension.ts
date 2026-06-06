@@ -33,7 +33,7 @@ export function activate(context: ExtensionContext): void {
     migrations: extensionMigrations,
     state: context.globalState
   });
-  profiles.configure({ state: context.globalState });
+  profiles.configure({ secrets: context.secrets, state: context.globalState });
 
   const config = workspace.getConfiguration('gist');
   const previousVersion = context.globalState.get('version');
@@ -59,21 +59,29 @@ export function activate(context: ExtensionContext): void {
   /**
    * General Commands
    */
-  commands.registerCommand('extension.resetState', () => {
-    context.globalState.update('gisttoken', undefined);
-    context.globalState.update('gist_provider', undefined);
-    context.globalState.update('profiles', undefined);
-    context.globalState.update('migrations', undefined);
+  const resetStateCommand = commands.registerCommand(
+    'extension.resetState',
+    async () => {
+      context.globalState.update('gisttoken', undefined);
+      context.globalState.update('gist_provider', undefined);
+      await profiles.reset();
+      context.globalState.update('migrations', undefined);
 
-    commands.executeCommand(StatusBarCommands.Update);
-    commands.executeCommand(GistCommands.UpdateAccessKey);
-  });
+      commands.executeCommand(StatusBarCommands.Update);
+      commands.executeCommand(GistCommands.UpdateAccessKey);
+    }
+  );
+  disposables.commands.push(resetStateCommand);
 
   /**
    * Execute Startup Commands
    */
   void migrations
     .up()
+    .catch((err: Error) => {
+      logger.error(err.message);
+    })
+    .then(() => profiles.migrateSecrets())
     .catch((err: Error) => {
       logger.error(err.message);
     })

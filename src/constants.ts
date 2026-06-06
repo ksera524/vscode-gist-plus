@@ -3,8 +3,9 @@ import { Buffer } from 'buffer';
 export const EXTENSION_ID = 'ksera524.vscode-gist-plus';
 export const DEBUG = process.env['DEBUG'] === 'true';
 export const GISTS_BASE_URL = 'https://api.github.com';
-export const GISTS_PER_PAGE = 9999;
+export const GISTS_PER_PAGE = 100;
 export const LOGGER_LEVEL = 3;
+export const PROFILE_SECRET_PREFIX = 'gist-plus.profile';
 export const TELEMETRY_COHORT_RANGE = [0, 75];
 export const TELEMETRY_WRITE_KEY = Buffer.from(
   'YzgzYjU2NGMtYTdmNS00MmVjLTkxNGEtOWZiYjViYzM2NjU5',

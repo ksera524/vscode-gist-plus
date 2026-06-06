@@ -4,6 +4,7 @@ import { create } from '../create.js';
 
 const utilsMock = jest.genMockFromModule<Utils>('../../../utils');
 const errorMock = jest.fn();
+const debugMock = jest.fn();
 const addMock = jest.fn();
 
 const executeCommandSpy = jest.spyOn(commands, 'executeCommand');
@@ -13,7 +14,7 @@ describe('create profile', () => {
   let createFn: CommandFn;
   beforeEach(() => {
     const insights = { exception: jest.fn() };
-    const logger = { error: errorMock };
+    const logger = { debug: debugMock, error: errorMock };
     const profiles = { add: addMock };
     createFn = create(
       { get: jest.fn() },
@@ -25,7 +26,7 @@ describe('create profile', () => {
     jest.clearAllMocks();
   });
   test('should create a new profile', async () => {
-    expect.assertions(3);
+    expect.assertions(4);
 
     showInformationMessageSpy.mockImplementationOnce(
       (_prompt: string, _options: object, ...items: any[]) => {
@@ -46,6 +47,12 @@ describe('create profile', () => {
       'test url',
       true
     );
+    expect(utilsMock.input.prompt).toHaveBeenNthCalledWith(
+      2,
+      'Enter your access token',
+      '',
+      { password: true }
+    );
     expect(executeCommandSpy).toHaveBeenNthCalledWith(
       1,
       'extension.status.update'
@@ -56,8 +63,9 @@ describe('create profile', () => {
     );
   });
 
-  test('when something goes wrong do not throw but log', async () => {
+  test('when platform selection is cancelled do not throw or log an error', async () => {
     expect.assertions(2);
+    showInformationMessageSpy.mockResolvedValueOnce(undefined);
 
     let error: any;
     try {
@@ -66,7 +74,7 @@ describe('create profile', () => {
       error = err;
     }
 
-    expect(errorMock.mock.calls).toHaveLength(1);
+    expect(errorMock.mock.calls).toHaveLength(0);
     expect(error).toBeUndefined();
   });
 });

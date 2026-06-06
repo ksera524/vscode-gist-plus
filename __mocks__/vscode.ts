@@ -24,6 +24,7 @@ export const WorkspaceEdit = jest.fn(function WorkspaceEdit(this: any) {
 });
 
 export const commands = {
+  registerCommand: jest.fn(() => ({ dispose: jest.fn() })),
   executeCommand: jest.fn()
 };
 
@@ -42,6 +43,12 @@ export const window = {
   showInputBox: jest.fn(),
   showQuickPick: jest.fn(),
   showTextDocument: jest.fn()
+};
+
+export const mockSecrets = {
+  delete: jest.fn(),
+  get: jest.fn(),
+  store: jest.fn()
 };
 
 export const workspace = {

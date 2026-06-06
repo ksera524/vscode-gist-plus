@@ -28,18 +28,30 @@ interface Memento {
 
 interface RawProfile {
   active: boolean;
-  key: string;
+  key?: string;
+  secretKey?: string;
   url: string;
 }
 
-interface Profile extends RawProfile {
+interface Profile {
+  active: boolean;
+  key: string;
   name: string;
+  secretKey: string;
+  url: string;
+}
+
+interface SecretStorage {
+  delete(key: string): Thenable<void>;
+  get(key: string): Thenable<string | undefined>;
+  store(key: string, value: string): Thenable<void>;
 }
 
 interface Profiles {
   add(name: string, key: string, url?: string, active?: boolean): Promise<void>;
-  configure(options: { state: Memento }): void;
-  get(): Profile | undefined;
-  getAll(): Profile[];
+  configure(options: { secrets?: SecretStorage; state: Memento }): void;
+  get(): Promise<Profile | undefined>;
+  getAll(): Promise<Profile[]>;
+  migrateSecrets(): Promise<void>;
   reset(): Promise<void>;
 }

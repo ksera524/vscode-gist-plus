@@ -5,6 +5,7 @@ import {
   deleteGist,
   getGist,
   getGists,
+  normalizeCreateFiles,
   updateGist
 } from '../api.js';
 import { gists } from '../gists-service.js';
@@ -17,8 +18,40 @@ describe('Gists API Tests', () => {
     test('should not throw an error', () => {
       expect(() => configure({ key: 'foo', url: 'bar' })).not.toThrowError();
     });
+
+    test('passes rejectUnauthorized through to gist service configuration', () => {
+      expect.assertions(1);
+      const configureSpy = jest.spyOn(gists, 'configure');
+
+      configure({
+        key: 'foo',
+        rejectUnauthorized: false,
+        url: 'https://example.com'
+      });
+
+      expect(configureSpy).toHaveBeenCalledWith({
+        key: 'foo',
+        rejectUnauthorized: false,
+        url: 'https://example.com'
+      });
+      configureSpy.mockRestore();
+    });
   });
   describe('#getGists', () => {
+    const createRawGist = (id: string) => ({
+      created_at: new Date().toString(),
+      description: `gist ${id}`,
+      files: {
+        [`${id}.md`]: {
+          content: id
+        }
+      },
+      html_url: 'https://foo.bar',
+      id,
+      public: true,
+      updated_at: new Date().toString()
+    });
+
     test('list without params should return one block', async () => {
       expect.assertions(2);
 
@@ -74,6 +107,27 @@ describe('Gists API Tests', () => {
 
       await expect(getGists(true)).rejects.toThrow('starred failed');
       listStarredSpy.mockRestore();
+    });
+
+    test('paginates gist list until the final partial page', async () => {
+      expect.assertions(3);
+      const listSpy = jest
+        .spyOn(gists, 'list')
+        .mockResolvedValueOnce({
+          data: Array.from({ length: 100 }, (_, index) =>
+            createRawGist(`page-one-${index}`)
+          )
+        } as Services)
+        .mockResolvedValueOnce({
+          data: [createRawGist('page-two')]
+        } as Services);
+
+      const results = await getGists();
+
+      expect(results).toHaveLength(101);
+      expect(listSpy).toHaveBeenNthCalledWith(1, { page: 1, per_page: 100 });
+      expect(listSpy).toHaveBeenNthCalledWith(2, { page: 2, per_page: 100 });
+      listSpy.mockRestore();
     });
   });
   describe('#getGist', () => {
@@ -139,9 +193,45 @@ describe('Gists API Tests', () => {
       expect(gist.id).toBe('broken-id');
       expect(gist.files['bad.md']).toStrictEqual({
         content: '',
+        contentLoaded: false,
         filename: 'bad.md'
       });
       getSpy.mockRestore();
+    });
+
+    test('hydrates gist files from raw_url when content is missing', async () => {
+      expect.assertions(3);
+      const getSpy = jest.spyOn(gists, 'get').mockResolvedValueOnce({
+        data: {
+          created_at: new Date().toString(),
+          description: 'raw gist',
+          files: {
+            'raw.md': {
+              filename: 'raw.md',
+              raw_url: 'https://foo.bar/raw.md'
+            }
+          },
+          html_url: 'https://foo.bar',
+          id: 'raw-id',
+          public: true,
+          updated_at: new Date().toString()
+        }
+      } as Services);
+      const rawSpy = jest
+        .spyOn(gists, 'raw')
+        .mockResolvedValueOnce({ data: 'raw content' });
+
+      const gist = await getGist('raw-id');
+
+      expect(rawSpy).toHaveBeenCalledWith('https://foo.bar/raw.md');
+      expect(gist.files['raw.md']).toStrictEqual({
+        content: 'raw content',
+        filename: 'raw.md',
+        raw_url: 'https://foo.bar/raw.md'
+      });
+      expect(gist.id).toBe('raw-id');
+      getSpy.mockRestore();
+      rawSpy.mockRestore();
     });
 
     test('accepts payloads where description is null', async () => {
@@ -229,6 +319,17 @@ describe('Gists API Tests', () => {
     });
   });
   describe('#createGist', () => {
+    test('normalizes empty filename and content values for create files', () => {
+      expect.assertions(1);
+
+      expect(
+        normalizeCreateFiles({
+          '  empty.md  ': { content: '' },
+          '   ': { content: 'ignored' }
+        })
+      ).toStrictEqual({ 'empty.md': { content: ' ' } });
+    });
+
     test('creates a gist', async () => {
       expect.assertions(2);
 
@@ -321,7 +422,8 @@ describe('Gists API Tests', () => {
   });
   describe('#deleteFile', () => {
     test('deletes a file', async () => {
-      expect.assertions(1);
+      expect.assertions(2);
+      const updateSpy = jest.spyOn(gists, 'update');
 
       let error: string | undefined;
       try {
@@ -331,6 +433,11 @@ describe('Gists API Tests', () => {
       }
 
       expect(error).toBeUndefined();
+      expect(updateSpy).toHaveBeenCalledWith({
+        files: { 'foo.txt': null },
+        gist_id: '1234'
+      });
+      updateSpy.mockRestore();
     });
 
     test('throws formatted error when file delete fails', async () => {

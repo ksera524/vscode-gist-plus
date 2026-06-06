@@ -17,12 +17,20 @@ const create: CommandInitializer = (
 
   const commandFn = async (): Promise<void> => {
     try {
-      const { title } = (await window.showInformationMessage(
+      const platform = await window.showInformationMessage(
         'Which GitHub Platform?',
         { modal: true },
         { title: 'GitHub.com (common)', isCloseAffordance: true },
         { title: 'GitHub Enterprise' }
-      )) as MessageItem;
+      );
+
+      if (!platform) {
+        logger.debug('User Aborted Create Profile at "platform"');
+
+        return;
+      }
+
+      const { title } = platform as MessageItem;
 
       const url =
         title === 'GitHub Enterprise'
@@ -35,7 +43,9 @@ const create: CommandInitializer = (
         return;
       }
 
-      const key = await utils.input.prompt('Enter your access token');
+      const key = await utils.input.prompt('Enter your access token', '', {
+        password: true
+      });
 
       if (!key) {
         logger.debug('User Aborted Create Profile at "key"');

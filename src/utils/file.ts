@@ -11,12 +11,23 @@ const dirSync = (token: string): string => {
   return fs.mkdtempSync(path.join(os.tmpdir(), prefix));
 };
 
-const fileSync = (token: string, filename: string, content: string): string => {
-  const directory = dirSync(token);
-  const filePath = path.join(directory, filename);
+const toTmpFilePath = (directory: string, filename: string): string =>
+  path.join(directory, filename);
+
+const writeFileSync = (
+  directory: string,
+  filename: string,
+  content: string
+): string => {
+  const filePath = toTmpFilePath(directory, filename);
   fs.writeFileSync(filePath, content);
 
   return filePath;
+};
+
+const fileSync = (token: string, filename: string, content: string): string => {
+  const directory = dirSync(token);
+  return writeFileSync(directory, filename, content);
 };
 
 const filesSync = (
@@ -24,22 +35,30 @@ const filesSync = (
   files: { [x: string]: { content: string } }
 ): string[] => {
   const directory = dirSync(token);
-  const filePaths: string[] = [];
-  for (const filename in files) {
-    if (Object.prototype.hasOwnProperty.call(files, filename)) {
-      const file = files[filename];
-      if (!file) {
-        continue;
-      }
 
-      const { content } = file;
-      const filePath = path.join(directory, filename);
-      fs.writeFileSync(filePath, content);
-      filePaths.push(filePath);
-    }
-  }
+  return Object.entries(files)
+    .filter((entry): entry is [string, { content: string }] =>
+      Boolean(entry[1])
+    )
+    .map(([filename, file]) =>
+      writeFileSync(directory, filename, file.content)
+    );
+};
 
-  return filePaths;
+const parseGistFilePath = (
+  fileName: string
+): { filename: string; fullPath: string; id: string } => {
+  const sep = path.sep === '\\' ? '\\\\' : path.sep;
+  const regexp = new RegExp(
+    `.*${TMP_DIRECTORY_PREFIX}_([^_]*)_[^${sep}]*${sep}(.*)`
+  );
+  const match = fileName.match(regexp);
+
+  return {
+    filename: match?.[2] || '',
+    fullPath: match?.[0] || '',
+    id: match?.[1] || ''
+  };
 };
 
 const extractTextDocumentDetails = (
@@ -52,14 +71,7 @@ const extractTextDocumentDetails = (
   language: string;
   path: string;
 } => {
-  const sep = path.sep === '\\' ? '\\\\' : path.sep;
-  const regexp = new RegExp(
-    `.*${TMP_DIRECTORY_PREFIX}_([^_]*)_[^${sep}]*${sep}(.*)`
-  );
-  const match = doc.fileName.match(regexp);
-  const fullPath = match?.[0] || '';
-  const id = match?.[1] || '';
-  const filename = match?.[2] || '';
+  const { filename, fullPath, id } = parseGistFilePath(doc.fileName);
   const content = doc.getText();
 
   const { languageId } = editor ? editor.document : { languageId: 'unknown' };
@@ -79,4 +91,11 @@ const getFileName = (doc: TextDocument, fallback?: string): string => {
   return path.basename(filepath) || fallback || 'unknown.txt';
 };
 
-export { fileSync, filesSync, extractTextDocumentDetails, getFileName };
+export {
+  fileSync,
+  filesSync,
+  extractTextDocumentDetails,
+  getFileName,
+  parseGistFilePath,
+  toTmpFilePath
+};

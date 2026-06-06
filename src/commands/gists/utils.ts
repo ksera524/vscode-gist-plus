@@ -13,39 +13,73 @@ import {
 import type { Gist } from '../../types/gist.js';
 import * as utils from '../../utils/index.js';
 
+type GistFileForOpen = { content: string; contentLoaded?: boolean };
+
+type SelectableGistFile = {
+  description: string;
+  label: string;
+  [filename: string]: string | GistFileForOpen;
+};
+
+const assertLoadedFile = (
+  file: GistFileForOpen | undefined
+): GistFileForOpen => {
+  if (!file || file.contentLoaded === false) {
+    throw new Error('Gist file content is not available');
+  }
+
+  return file;
+};
+
 const _openDocument = async (file: string): Promise<void> => {
   const doc = await workspace.openTextDocument(file);
   await window.showTextDocument(doc);
   commands.executeCommand('workbench.action.keepEditor');
 };
 
+const toSelectableFiles = (gist: {
+  files: { [name: string]: GistFileForOpen };
+}): SelectableGistFile[] =>
+  Object.entries(gist.files)
+    .filter((entry): entry is [string, { content: string }] =>
+      Boolean(entry[1])
+    )
+    .map(([key, file]) => ({
+      description: '',
+      [key]: file,
+      label: key
+    }));
+
+const resolveSelectedFile = (
+  gist: { files: { [name: string]: GistFileForOpen } },
+  selectedFile: SelectableGistFile | undefined
+): { content: string; filename: string } | undefined => {
+  if (!selectedFile) {
+    return undefined;
+  }
+
+  const selected = assertLoadedFile(gist.files[selectedFile.label]);
+
+  if (typeof selected.content !== 'string') {
+    throw new Error('Invalid gist file content');
+  }
+
+  return {
+    content: selected.content,
+    filename: selectedFile.label
+  };
+};
+
 const selectFile = async (gist: {
-  files: { [name: string]: { content: string } };
+  files: { [name: string]: GistFileForOpen };
 }): Promise<{ content: string; filename: string } | undefined> => {
-  const files = Object.keys(gist.files).map((key) => ({
-    description: '',
-    [key]: gist.files[key],
-    label: key
-  }));
+  const files = toSelectableFiles(gist);
   const selectedFile =
     files.length > 1
       ? await window.showQuickPick(files)
       : await Promise.resolve(files[0]);
 
-  return selectedFile
-    ? (() => {
-        const selected = gist.files[selectedFile.label];
-
-        if (!selected || typeof selected.content !== 'string') {
-          throw new Error('Invalid gist file content');
-        }
-
-        return {
-          content: selected.content,
-          filename: selectedFile.label
-        };
-      })()
-    : undefined;
+  return resolveSelectedFile(gist, selectedFile);
 };
 
 const openGist = async (
@@ -66,7 +100,13 @@ const openGist = async (
     const filePath = utils.files.fileSync(id, file.filename, file.content);
     await _openDocument(filePath);
   } else {
-    const filePaths = utils.files.filesSync(id, files);
+    const loadedFiles = Object.fromEntries(
+      Object.entries(files).map(([filename, file]) => [
+        filename,
+        assertLoadedFile(file)
+      ])
+    );
+    const filePaths = utils.files.filesSync(id, loadedFiles);
 
     // await is not available not available in forEach
     for (const filePath of filePaths) {
@@ -102,4 +142,4 @@ const insertText = async (
   });
 };
 
-export { insertText, openGist, selectFile };
+export { insertText, openGist, resolveSelectedFile, selectFile };

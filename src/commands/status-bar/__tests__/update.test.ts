@@ -12,7 +12,7 @@ const createStatusBarItemMock = {
 const utilsMock = jest.genMockFromModule<Utils>('../../../utils');
 const debugMock = jest.fn();
 const errorMock = jest.fn();
-const getMock = jest.fn(() => ({ name: 'foo' }) as Services);
+const getMock = jest.fn(async () => ({ name: 'foo' }) as Services);
 
 createStatusBarItem.mockImplementation(
   () => createStatusBarItemMock as Services
@@ -33,10 +33,10 @@ describe('update status bar', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
-  test('should update the status bar', () => {
+  test('should update the status bar', async () => {
     expect.assertions(2);
 
-    updateFn();
+    await updateFn();
 
     expect(createStatusBarItemMock.text).toStrictEqual('GIST [foo]');
     expect(createStatusBarItemMock.command).toStrictEqual(
@@ -44,12 +44,12 @@ describe('update status bar', () => {
     );
   });
 
-  test('should show "Create Profile" in status bar', () => {
+  test('should show "Create Profile" in status bar', async () => {
     expect.assertions(2);
 
-    getMock.mockReturnValueOnce(undefined);
+    getMock.mockResolvedValueOnce(undefined);
 
-    updateFn();
+    await updateFn();
 
     expect(createStatusBarItemMock.text).toStrictEqual('GIST [Create Profile]');
     expect(createStatusBarItemMock.command).toStrictEqual(

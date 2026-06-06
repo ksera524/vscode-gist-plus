@@ -64,17 +64,26 @@ const prepareError = (err: Error): Error => {
 const normalizeCreateFiles = (files?: {
   [x: string]: { content: string };
 }): { [x: string]: { content: string } } => {
-  const normalized: { [x: string]: { content: string } } = {};
-
-  if (files && typeof files === 'object') {
-    for (const [filename, file] of Object.entries(files)) {
-      const trimmed = filename.trim();
-      if (!trimmed || !file || typeof file.content !== 'string') {
-        continue;
-      }
-      normalized[trimmed] = { content: file.content || ' ' };
-    }
-  }
+  const normalized =
+    files && typeof files === 'object'
+      ? Object.fromEntries(
+          Object.entries(files)
+            .map(
+              ([filename, file]) =>
+                [filename.trim(), file] as [string, { content: string }]
+            )
+            .filter(
+              ([filename, file]) =>
+                Boolean(filename) &&
+                Boolean(file) &&
+                typeof file.content === 'string'
+            )
+            .map(([filename, file]) => [
+              filename,
+              { content: file.content || ' ' }
+            ])
+        )
+      : {};
 
   if (Object.keys(normalized).length === 0) {
     return { 'untitled.txt': { content: ' ' } };
@@ -83,42 +92,59 @@ const normalizeCreateFiles = (files?: {
   return normalized;
 };
 
-const formatGist = (gist: unknown): Gist => {
-  if (!isGistResponse(gist)) {
-    throw new Error('Invalid gist payload');
+const definedGistFileEntries = (files: {
+  [x: string]: ApiGistFile;
+}): [string, ApiGistFile][] =>
+  Object.entries(files).filter((entry): entry is [string, ApiGistFile] =>
+    Boolean(entry[1])
+  );
+
+const normalizeGistFile = (file: ApiGistFile): GistFile => ({
+  content: typeof file.content === 'string' ? file.content : '',
+  ...(typeof file.content === 'string' ? {} : { contentLoaded: false }),
+  ...(typeof file.filename === 'string' ? { filename: file.filename } : {}),
+  ...(typeof file.language === 'string' ? { language: file.language } : {}),
+  ...(typeof file.raw_url === 'string' ? { raw_url: file.raw_url } : {}),
+  ...(typeof file.size === 'number' ? { size: file.size } : {}),
+  ...(typeof file.type === 'string' ? { type: file.type } : {})
+});
+
+const markContentLoaded = (file: GistFile, content: string): GistFile => {
+  const loadedFile = { ...file, content };
+  delete loadedFile.contentLoaded;
+
+  return loadedFile;
+};
+
+const hydrateGistFile = async (file: ApiGistFile): Promise<GistFile> => {
+  if (typeof file.content === 'string') {
+    return normalizeGistFile(file);
   }
-  const g = gist;
-  const files: { [x: string]: GistFile } = Object.keys(g.files).reduce<{
-    [x: string]: GistFile;
-  }>((acc, key) => {
-    const file = g.files[key];
-    if (!file) {
-      return acc;
-    }
-    const normalized: GistFile = {
-      content: typeof file.content === 'string' ? file.content : ''
-    };
 
-    if (typeof file.filename === 'string') {
-      normalized.filename = file.filename;
-    }
-    if (typeof file.language === 'string') {
-      normalized.language = file.language;
-    }
-    if (typeof file.raw_url === 'string') {
-      normalized.raw_url = file.raw_url;
-    }
-    if (typeof file.size === 'number') {
-      normalized.size = file.size;
-    }
-    if (typeof file.type === 'string') {
-      normalized.type = file.type;
-    }
+  if (typeof file.raw_url !== 'string') {
+    return normalizeGistFile(file);
+  }
 
-    acc[key] = normalized;
+  const response = await gists.raw(file.raw_url);
+  const normalized = normalizeGistFile(file);
 
-    return acc;
-  }, {});
+  return typeof response.data === 'string'
+    ? markContentLoaded(normalized, response.data)
+    : normalized;
+};
+
+const toGist = async (g: GistResponse, hydrate = false): Promise<Gist> => {
+  const fileEntries = hydrate
+    ? await Promise.all(
+        definedGistFileEntries(g.files).map(async ([key, file]) => [
+          key,
+          await hydrateGistFile(file)
+        ])
+      )
+    : definedGistFileEntries(g.files).map(([key, file]) => [
+        key,
+        normalizeGistFile(file)
+      ]);
 
   return {
     createdAt: new Intl.DateTimeFormat(env.language, {
@@ -128,7 +154,7 @@ const formatGist = (gist: unknown): Gist => {
     }).format(new Date(g.created_at)),
     description: g.description || '',
     fileCount: Object.keys(g.files).length,
-    files,
+    files: Object.fromEntries(fileEntries),
     id: g.id,
     name: g.description || Object.keys(g.files)[0] || '',
     public: g.public,
@@ -141,8 +167,16 @@ const formatGist = (gist: unknown): Gist => {
   };
 };
 
-const formatGists = (gistList: GistsResponse): Gist[] =>
-  gistList.map(formatGist);
+const formatGist = async (gist: unknown, hydrate = false): Promise<Gist> => {
+  if (!isGistResponse(gist)) {
+    throw new Error('Invalid gist payload');
+  }
+
+  return toGist(gist, hydrate);
+};
+
+const formatGists = (gistList: GistsResponse): Promise<Gist[]> =>
+  Promise.all(gistList.map((gist) => formatGist(gist)));
 
 const toGistsResponse = (value: unknown): GistsResponse => {
   if (!Array.isArray(value)) {
@@ -156,22 +190,39 @@ const getGist = async (id: string): Promise<Gist> => {
   try {
     const results = await gists.get({ gist_id: id });
 
-    return formatGist(results.data);
+    return formatGist(results.data, true);
   } catch (err) {
     throw prepareError(err as Error);
   }
 };
+
+const listGistPage = (starred: boolean, page: number) =>
+  gists[starred ? 'listStarred' : 'list']({
+    page,
+    per_page: GISTS_PER_PAGE
+  });
 
 /**
  * Get a list of gists
  */
 const getGists = async (starred = false): Promise<Gist[]> => {
   try {
-    const results = await gists[starred ? 'listStarred' : 'list']({
-      per_page: GISTS_PER_PAGE
-    });
+    const pages: GistResponse[] = [];
+    let page = 1;
 
-    return formatGists(toGistsResponse(results.data));
+    while (true) {
+      const results = await listGistPage(starred, page);
+      const pageData = toGistsResponse(results.data);
+      pages.push(...pageData);
+
+      if (pageData.length < GISTS_PER_PAGE) {
+        break;
+      }
+
+      page += 1;
+    }
+
+    return formatGists(pages);
   } catch (err) {
     throw prepareError(err as Error);
   }
@@ -197,10 +248,14 @@ const updateGist = async (
   }
 };
 
-const configure = (options: { key: string; url: string }): void => {
+const configure = (options: GistServiceOptions): void => {
   const key = options.key || '';
   const url = options.url || GISTS_BASE_URL;
-  gists.configure({ key, url });
+  gists.configure({
+    key,
+    rejectUnauthorized: options.rejectUnauthorized,
+    url
+  });
 };
 
 const createGist = async (
@@ -233,9 +288,9 @@ const deleteGist = async (id: string): Promise<void> => {
 const deleteFile = async (id: string, filename: string): Promise<void> => {
   try {
     await gists.update({
-      files: { [filename]: { content: '' } },
+      files: { [filename]: null },
       gist_id: id
-    });
+    } as unknown as Parameters<typeof gists.update>[0]);
   } catch (err) {
     throw prepareError(err as Error);
   }
@@ -248,5 +303,7 @@ export {
   deleteGist,
   getGist,
   getGists,
+  normalizeCreateFiles,
+  toGist,
   updateGist
 };
