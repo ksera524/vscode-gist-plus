@@ -1,13 +1,13 @@
-# Change Log
+# Changelog
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-## Unreleased
+### [1.0.4](https://github.com/ksera524/vscode-gist-plus/compare/v1.0.3...v1.0.4) (2026-06-06)
 
-### Notes
+### Changed
 
-* Start unofficial maintenance fork from `kenhowardpdx/vscode-gist` to keep the extension usable on modern VS Code and Windows 11.
-* Update extension metadata and documentation to clearly preserve original attribution while publishing this fork separately.
+* Trim package activation events.
+* Refactor functional transformation boundaries.
 
 <a name="3.0.3"></a>
 ## [3.0.3](https://github.com/kenhowardpdx/vscode-gist/compare/v3.0.2...v3.0.3) (2019-02-03)
