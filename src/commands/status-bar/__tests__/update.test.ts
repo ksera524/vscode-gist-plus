@@ -14,7 +14,9 @@ const debugMock = jest.fn();
 const errorMock = jest.fn();
 const getMock = jest.fn(() => ({ name: 'foo' }) as Services);
 
-createStatusBarItem.mockImplementation(() => createStatusBarItemMock as Services);
+createStatusBarItem.mockImplementation(
+  () => createStatusBarItemMock as Services
+);
 
 describe('update status bar', () => {
   let updateFn: CommandFn;
