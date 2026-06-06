@@ -64,17 +64,26 @@ const prepareError = (err: Error): Error => {
 const normalizeCreateFiles = (files?: {
   [x: string]: { content: string };
 }): { [x: string]: { content: string } } => {
-  const normalized: { [x: string]: { content: string } } = {};
-
-  if (files && typeof files === 'object') {
-    for (const [filename, file] of Object.entries(files)) {
-      const trimmed = filename.trim();
-      if (!trimmed || !file || typeof file.content !== 'string') {
-        continue;
-      }
-      normalized[trimmed] = { content: file.content || ' ' };
-    }
-  }
+  const normalized =
+    files && typeof files === 'object'
+      ? Object.fromEntries(
+          Object.entries(files)
+            .map(
+              ([filename, file]) =>
+                [filename.trim(), file] as [string, { content: string }]
+            )
+            .filter(
+              ([filename, file]) =>
+                Boolean(filename) &&
+                Boolean(file) &&
+                typeof file.content === 'string'
+            )
+            .map(([filename, file]) => [
+              filename,
+              { content: file.content || ' ' }
+            ])
+        )
+      : {};
 
   if (Object.keys(normalized).length === 0) {
     return { 'untitled.txt': { content: ' ' } };
@@ -83,62 +92,53 @@ const normalizeCreateFiles = (files?: {
   return normalized;
 };
 
+const definedGistFileEntries = (files: {
+  [x: string]: ApiGistFile;
+}): [string, ApiGistFile][] =>
+  Object.entries(files).filter((entry): entry is [string, ApiGistFile] =>
+    Boolean(entry[1])
+  );
+
+const normalizeGistFile = (file: ApiGistFile): GistFile => ({
+  content: typeof file.content === 'string' ? file.content : '',
+  ...(typeof file.filename === 'string' ? { filename: file.filename } : {}),
+  ...(typeof file.language === 'string' ? { language: file.language } : {}),
+  ...(typeof file.raw_url === 'string' ? { raw_url: file.raw_url } : {}),
+  ...(typeof file.size === 'number' ? { size: file.size } : {}),
+  ...(typeof file.type === 'string' ? { type: file.type } : {})
+});
+
+const toGist = (g: GistResponse): Gist => ({
+  createdAt: new Intl.DateTimeFormat(env.language, {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  }).format(new Date(g.created_at)),
+  description: g.description || '',
+  fileCount: Object.keys(g.files).length,
+  files: Object.fromEntries(
+    definedGistFileEntries(g.files).map(([key, file]) => [
+      key,
+      normalizeGistFile(file)
+    ])
+  ),
+  id: g.id,
+  name: g.description || Object.keys(g.files)[0] || '',
+  public: g.public,
+  updatedAt: new Intl.DateTimeFormat(env.language, {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  }).format(new Date(g.updated_at)),
+  url: g.html_url || g.url || ''
+});
+
 const formatGist = (gist: unknown): Gist => {
   if (!isGistResponse(gist)) {
     throw new Error('Invalid gist payload');
   }
-  const g = gist;
-  const files: { [x: string]: GistFile } = Object.keys(g.files).reduce<{
-    [x: string]: GistFile;
-  }>((acc, key) => {
-    const file = g.files[key];
-    if (!file) {
-      return acc;
-    }
-    const normalized: GistFile = {
-      content: typeof file.content === 'string' ? file.content : ''
-    };
 
-    if (typeof file.filename === 'string') {
-      normalized.filename = file.filename;
-    }
-    if (typeof file.language === 'string') {
-      normalized.language = file.language;
-    }
-    if (typeof file.raw_url === 'string') {
-      normalized.raw_url = file.raw_url;
-    }
-    if (typeof file.size === 'number') {
-      normalized.size = file.size;
-    }
-    if (typeof file.type === 'string') {
-      normalized.type = file.type;
-    }
-
-    acc[key] = normalized;
-
-    return acc;
-  }, {});
-
-  return {
-    createdAt: new Intl.DateTimeFormat(env.language, {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    }).format(new Date(g.created_at)),
-    description: g.description || '',
-    fileCount: Object.keys(g.files).length,
-    files,
-    id: g.id,
-    name: g.description || Object.keys(g.files)[0] || '',
-    public: g.public,
-    updatedAt: new Intl.DateTimeFormat(env.language, {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    }).format(new Date(g.updated_at)),
-    url: g.html_url || g.url || ''
-  };
+  return toGist(gist);
 };
 
 const formatGists = (gistList: GistsResponse): Gist[] =>
@@ -248,5 +248,7 @@ export {
   deleteGist,
   getGist,
   getGists,
+  normalizeCreateFiles,
+  toGist,
   updateGist
 };

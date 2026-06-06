@@ -1,6 +1,10 @@
 import fc from 'fast-check';
 
-import { profiles } from '../profile-service.js';
+import {
+  createProfileState,
+  profiles,
+  toProfiles
+} from '../profile-service.js';
 
 const mockState = {
   get: jest.fn(() => ({
@@ -32,6 +36,38 @@ describe('Profile Service Tests', () => {
         'existing profile': { active: false, key: '123', url: 'abc' },
         'test name': { active: true, key: 'test key', url: 'test url' }
       });
+    });
+  });
+  describe('profile transforms', () => {
+    test('createProfileState deactivates existing profiles when adding', () => {
+      expect.assertions(1);
+
+      expect(
+        createProfileState(
+          {
+            first: { active: true, key: 'first-key', url: 'first-url' },
+            second: { active: true, key: 'second-key', url: 'second-url' }
+          },
+          'third',
+          'third-key',
+          'third-url',
+          true
+        )
+      ).toStrictEqual({
+        first: { active: false, key: 'first-key', url: 'first-url' },
+        second: { active: false, key: 'second-key', url: 'second-url' },
+        third: { active: true, key: 'third-key', url: 'third-url' }
+      });
+    });
+
+    test('toProfiles maps raw profile keys to profile names', () => {
+      expect.assertions(1);
+
+      const rawProfiles = { ...gh, ...ghe };
+
+      expect(toProfiles(rawProfiles).map((profile) => profile.name)).toEqual(
+        Object.keys(rawProfiles)
+      );
     });
   });
   describe('#getAll', () => {

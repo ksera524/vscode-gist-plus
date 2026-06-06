@@ -1,5 +1,32 @@
 import { GistCommands } from '../extension-commands.js';
 
+const getProfileOptionOverride = (
+  config: Configuration,
+  profileName: string
+): GistServiceOptions => {
+  const profileOptionOverride = config.get<{
+    [profile: string]: GistServiceOptions;
+  }>('profileOptions');
+
+  return profileOptionOverride?.[profileName] || {};
+};
+
+const toGistServiceOptions = (
+  profile: Profile | undefined,
+  optionOverride: GistServiceOptions = {}
+): GistServiceOptions =>
+  profile
+    ? {
+        key: optionOverride.key || profile.key,
+        rejectUnauthorized: optionOverride.rejectUnauthorized ?? true,
+        url: optionOverride.url || profile.url
+      }
+    : {
+        key: undefined,
+        rejectUnauthorized: undefined,
+        url: undefined
+      };
+
 const updateAccessKey: CommandInitializer = (
   config: Configuration,
   services: Services,
@@ -12,30 +39,11 @@ const updateAccessKey: CommandInitializer = (
   const commandFn = (): void => {
     try {
       const profile = profiles.get();
-      if (profile) {
-        let optionOverride: GistServiceOptions = {};
-        const profileOptionOverride = config.get<{
-          [profile: string]: GistServiceOptions;
-        }>('profileOptions');
+      const optionOverride = profile
+        ? getProfileOptionOverride(config, profile.name)
+        : {};
 
-        if (
-          profileOptionOverride &&
-          Object.keys(profileOptionOverride).length > 0 &&
-          profileOptionOverride[profile.name]
-        ) {
-          optionOverride = { ...profileOptionOverride[profile.name] };
-        }
-        const key = optionOverride.key || profile.key;
-        const url = optionOverride.url || profile.url;
-        const rejectUnauthorized = optionOverride.rejectUnauthorized || true;
-        gists.configure({ key, url, rejectUnauthorized });
-      } else {
-        gists.configure({
-          key: undefined,
-          rejectUnauthorized: undefined,
-          url: undefined
-        });
-      }
+      gists.configure(toGistServiceOptions(profile, optionOverride));
       logger.debug('updated access key');
     } catch (err) {
       const error: Error = err as Error;
@@ -47,4 +55,4 @@ const updateAccessKey: CommandInitializer = (
   return [command, commandFn];
 };
 
-export { updateAccessKey };
+export { toGistServiceOptions, updateAccessKey };

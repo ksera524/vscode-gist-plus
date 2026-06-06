@@ -13,39 +13,61 @@ import {
 import type { Gist } from '../../types/gist.js';
 import * as utils from '../../utils/index.js';
 
+type SelectableGistFile = {
+  description: string;
+  label: string;
+  [filename: string]: string | { content: string };
+};
+
 const _openDocument = async (file: string): Promise<void> => {
   const doc = await workspace.openTextDocument(file);
   await window.showTextDocument(doc);
   commands.executeCommand('workbench.action.keepEditor');
 };
 
+const toSelectableFiles = (gist: {
+  files: { [name: string]: { content: string } };
+}): SelectableGistFile[] =>
+  Object.entries(gist.files)
+    .filter((entry): entry is [string, { content: string }] =>
+      Boolean(entry[1])
+    )
+    .map(([key, file]) => ({
+      description: '',
+      [key]: file,
+      label: key
+    }));
+
+const resolveSelectedFile = (
+  gist: { files: { [name: string]: { content: string } } },
+  selectedFile: SelectableGistFile | undefined
+): { content: string; filename: string } | undefined => {
+  if (!selectedFile) {
+    return undefined;
+  }
+
+  const selected = gist.files[selectedFile.label];
+
+  if (!selected || typeof selected.content !== 'string') {
+    throw new Error('Invalid gist file content');
+  }
+
+  return {
+    content: selected.content,
+    filename: selectedFile.label
+  };
+};
+
 const selectFile = async (gist: {
   files: { [name: string]: { content: string } };
 }): Promise<{ content: string; filename: string } | undefined> => {
-  const files = Object.keys(gist.files).map((key) => ({
-    description: '',
-    [key]: gist.files[key],
-    label: key
-  }));
+  const files = toSelectableFiles(gist);
   const selectedFile =
     files.length > 1
       ? await window.showQuickPick(files)
       : await Promise.resolve(files[0]);
 
-  return selectedFile
-    ? (() => {
-        const selected = gist.files[selectedFile.label];
-
-        if (!selected || typeof selected.content !== 'string') {
-          throw new Error('Invalid gist file content');
-        }
-
-        return {
-          content: selected.content,
-          filename: selectedFile.label
-        };
-      })()
-    : undefined;
+  return resolveSelectedFile(gist, selectedFile);
 };
 
 const openGist = async (
@@ -102,4 +124,4 @@ const insertText = async (
   });
 };
 
-export { insertText, openGist, selectFile };
+export { insertText, openGist, resolveSelectedFile, selectFile };

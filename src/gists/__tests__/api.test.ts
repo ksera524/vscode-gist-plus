@@ -5,6 +5,7 @@ import {
   deleteGist,
   getGist,
   getGists,
+  normalizeCreateFiles,
   updateGist
 } from '../api.js';
 import { gists } from '../gists-service.js';
@@ -229,6 +230,17 @@ describe('Gists API Tests', () => {
     });
   });
   describe('#createGist', () => {
+    test('normalizes empty filename and content values for create files', () => {
+      expect.assertions(1);
+
+      expect(
+        normalizeCreateFiles({
+          '  empty.md  ': { content: '' },
+          '   ': { content: 'ignored' }
+        })
+      ).toStrictEqual({ 'empty.md': { content: ' ' } });
+    });
+
     test('creates a gist', async () => {
       expect.assertions(2);
 

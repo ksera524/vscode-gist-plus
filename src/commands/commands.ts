@@ -23,24 +23,30 @@ const commandInitializers: CommandInitializer[] = [
   status.update
 ];
 
+const toCommandRegistration = (
+  config: Configuration,
+  services: Services,
+  commandInit: CommandInitializer
+): [Command, CommandFn] => commandInit(config, services, utils);
+
+const registerCommand = ([command, commandFn]: [
+  Command,
+  CommandFn
+]): Disposable => commands.registerCommand(command, commandFn);
+
 const init = (
   config: Configuration,
   services: Services,
   initializers: CommandInitializer[] = commandInitializers
 ): { commandCount: number; commands: Disposable[] } => {
   const { logger } = services;
-
-  const registerCommand = (commandInit: CommandInitializer): Disposable => {
-    const [command, commandFn] = commandInit(config, services, utils);
-
-    return commands.registerCommand(command, commandFn);
-  };
-
-  const registered = initializers.map(registerCommand);
+  const registered = initializers
+    .map((initializer) => toCommandRegistration(config, services, initializer))
+    .map(registerCommand);
 
   logger.debug('initializing commands');
 
   return { commandCount: registered.length, commands: registered };
 };
 
-export { init };
+export { init, toCommandRegistration };

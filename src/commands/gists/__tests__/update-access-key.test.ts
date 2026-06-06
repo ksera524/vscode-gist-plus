@@ -1,4 +1,4 @@
-import { updateAccessKey } from '../update-access-key.js';
+import { toGistServiceOptions, updateAccessKey } from '../update-access-key.js';
 
 const utilsMock = jest.genMockFromModule<Utils>('../../../utils');
 const configureGistsMock = jest.fn();
@@ -54,6 +54,20 @@ describe('update access key', () => {
       key: undefined,
       rejectUnauthorized: undefined,
       url: undefined
+    });
+  });
+  test('should preserve rejectUnauthorized override when false', () => {
+    expect.assertions(1);
+
+    expect(
+      toGistServiceOptions(
+        { active: true, key: '123', name: 'test', url: 'https://test.com' },
+        { rejectUnauthorized: false }
+      )
+    ).toStrictEqual({
+      key: '123',
+      rejectUnauthorized: false,
+      url: 'https://test.com'
     });
   });
 });
