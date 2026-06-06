@@ -54,7 +54,9 @@ describe('open favorite gist', () => {
       { gists, insights, logger } as Services,
       utilsMock as Services
     )[1];
-    (window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }).activeTextEditor = undefined;
+    (
+      window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }
+    ).activeTextEditor = undefined;
   });
   afterEach(() => {
     jest.clearAllMocks();

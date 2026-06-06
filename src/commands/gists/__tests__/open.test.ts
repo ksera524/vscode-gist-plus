@@ -53,7 +53,9 @@ describe('open gist', () => {
       { gists, insights, logger } as Services,
       utilsMock as Services
     )[1];
-    (window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }).activeTextEditor = undefined;
+    (
+      window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }
+    ).activeTextEditor = undefined;
   });
   afterEach(() => {
     jest.clearAllMocks();
@@ -73,8 +75,10 @@ describe('open gist', () => {
 
     expect((utilsMock.input.quickPick as jest.Mock).mock.calls.length).toBe(1);
 
-    const firstGist = (utilsMock.input.quickPick as jest.Mock).mock.calls[0][0][0];
-    const secondGist = (utilsMock.input.quickPick as jest.Mock).mock.calls[0][0][1];
+    const firstGist = (utilsMock.input.quickPick as jest.Mock).mock
+      .calls[0][0][0];
+    const secondGist = (utilsMock.input.quickPick as jest.Mock).mock
+      .calls[0][0][1];
 
     expect(firstGist.name).toBe('gist one');
     expect(secondGist.name).toBe('gist two');

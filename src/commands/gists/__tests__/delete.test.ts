@@ -17,8 +17,12 @@ describe('open gist', () => {
       { gists, insights, logger } as Services,
       utilsMock as Services
     )[1];
-    (window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }).activeTextEditor = undefined;
-    (window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }).visibleTextEditors = [];
+    (
+      window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }
+    ).activeTextEditor = undefined;
+    (
+      window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }
+    ).visibleTextEditors = [];
     (utilsMock.files.extractTextDocumentDetails as jest.Mock).mockReturnValue({
       id: '123'
     });
@@ -37,7 +41,9 @@ describe('open gist', () => {
   test('what happens when errors occur', async () => {
     expect.assertions(1);
 
-    (window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }).activeTextEditor = { document: {} };
+    (
+      window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }
+    ).activeTextEditor = { document: {} };
 
     deleteGistMock.mockRejectedValueOnce(false);
 
@@ -47,7 +53,9 @@ describe('open gist', () => {
   test('it deletes the open gist', async () => {
     expect.assertions(1);
 
-    (window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }).activeTextEditor = { document: { gist: { id: '123' } } };
+    (
+      window as { activeTextEditor?: unknown; visibleTextEditors?: unknown[] }
+    ).activeTextEditor = { document: { gist: { id: '123' } } };
 
     await deleteFn();
 
