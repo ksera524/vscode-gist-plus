@@ -102,6 +102,14 @@ const mockedRequest = jest.fn((route, params) => {
     return mockedGists.create(params);
   }
 
+  if (
+    typeof route === 'object' &&
+    typeof route.url === 'string' &&
+    route.url.startsWith('https://')
+  ) {
+    return Promise.resolve({ data: `raw content for ${route.url}` });
+  }
+
   return Promise.reject(
     new Error(`Unsupported mocked route: ${String(route)}`)
   );

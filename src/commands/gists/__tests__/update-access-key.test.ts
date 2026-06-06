@@ -8,7 +8,7 @@ describe('update access key', () => {
   beforeEach(() => {
     const gists = { configure: configureGistsMock };
     const profiles = {
-      get: jest.fn(() => ({ key: '123', url: 'https://test.com' }))
+      get: jest.fn(async () => ({ key: '123', url: 'https://test.com' }))
     };
     const insights = { track: jest.fn() };
     const logger = { debug: jest.fn() };
@@ -21,10 +21,10 @@ describe('update access key', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
-  test('should update gist access key', () => {
+  test('should update gist access key', async () => {
     expect.assertions(2);
 
-    updateAccessKeyFn();
+    await updateAccessKeyFn();
 
     expect(configureGistsMock.mock.calls).toHaveLength(1);
     expect(configureGistsMock.mock.calls[0][0]).toStrictEqual({
@@ -33,11 +33,11 @@ describe('update access key', () => {
       url: 'https://test.com'
     });
   });
-  test('should update gist access key to undefined when no access key is provided', () => {
+  test('should update gist access key to undefined when no access key is provided', async () => {
     expect.assertions(2);
     const gists = { configure: configureGistsMock };
     const profiles = {
-      get: jest.fn(() => undefined)
+      get: jest.fn(async () => undefined)
     };
     const insights = { track: jest.fn() };
     const logger = { debug: jest.fn() };
@@ -47,7 +47,7 @@ describe('update access key', () => {
       utilsMock as Services
     )[1];
 
-    updateAccessKeyFn();
+    await updateAccessKeyFn();
 
     expect(configureGistsMock.mock.calls).toHaveLength(1);
     expect(configureGistsMock.mock.calls[0][0]).toStrictEqual({
@@ -61,7 +61,13 @@ describe('update access key', () => {
 
     expect(
       toGistServiceOptions(
-        { active: true, key: '123', name: 'test', url: 'https://test.com' },
+        {
+          active: true,
+          key: '123',
+          name: 'test',
+          secretKey: 'secret',
+          url: 'https://test.com'
+        },
         { rejectUnauthorized: false }
       )
     ).toStrictEqual({

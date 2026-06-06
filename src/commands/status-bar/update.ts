@@ -14,9 +14,9 @@ const update: CommandInitializer = (
 
   const command = StatusBarCommands.Update;
 
-  const commandFn = (): void => {
+  const commandFn = async (): Promise<void> => {
     try {
-      const activeProfile = profiles.get();
+      const activeProfile = await profiles.get();
       statusBar.text = `GIST ${
         activeProfile ? `[${activeProfile.name}]` : '[Create Profile]'
       }`;

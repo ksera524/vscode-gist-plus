@@ -6,7 +6,11 @@ interface Notify {
 type GistModel = import('../types/gist').Gist;
 
 interface Input {
-  prompt(message: string, defaultValue?: string): Promise<string>;
+  prompt(
+    message: string,
+    defaultValue?: string,
+    options?: { password?: boolean }
+  ): Promise<string>;
   quickPick(list: GistModel[]): Promise<QuickPickGist | undefined>;
 }
 

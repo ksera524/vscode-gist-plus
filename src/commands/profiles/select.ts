@@ -17,7 +17,7 @@ const select: CommandInitializer = (
 
   const commandFn = async (): Promise<void> => {
     try {
-      const allProfiles = profiles.getAll();
+      const allProfiles = await profiles.getAll();
 
       if (!allProfiles || allProfiles.length === 0) {
         await commands.executeCommand(ProfileCommands.Create);

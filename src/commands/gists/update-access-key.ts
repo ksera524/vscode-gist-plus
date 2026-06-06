@@ -36,9 +36,9 @@ const updateAccessKey: CommandInitializer = (
 
   const command = GistCommands.UpdateAccessKey;
 
-  const commandFn = (): void => {
+  const commandFn = async (): Promise<void> => {
     try {
-      const profile = profiles.get();
+      const profile = await profiles.get();
       const optionOverride = profile
         ? getProfileOptionOverride(config, profile.name)
         : {};

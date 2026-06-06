@@ -3,9 +3,14 @@ import type { Gist } from '../types/gist.js';
 
 const prompt = async (
   message: string,
-  defaultValue?: string
+  defaultValue?: string,
+  options: { password?: boolean } = {}
 ): Promise<string> =>
-  (await window.showInputBox({ prompt: message, value: defaultValue })) || '';
+  (await window.showInputBox({
+    password: options.password,
+    prompt: message,
+    value: defaultValue
+  })) || '';
 
 const format = (list: Gist[]): QuickPickGist[] =>
   list.map((item, i, j) => ({

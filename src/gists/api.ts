@@ -101,6 +101,7 @@ const definedGistFileEntries = (files: {
 
 const normalizeGistFile = (file: ApiGistFile): GistFile => ({
   content: typeof file.content === 'string' ? file.content : '',
+  ...(typeof file.content === 'string' ? {} : { contentLoaded: false }),
   ...(typeof file.filename === 'string' ? { filename: file.filename } : {}),
   ...(typeof file.language === 'string' ? { language: file.language } : {}),
   ...(typeof file.raw_url === 'string' ? { raw_url: file.raw_url } : {}),
@@ -108,41 +109,74 @@ const normalizeGistFile = (file: ApiGistFile): GistFile => ({
   ...(typeof file.type === 'string' ? { type: file.type } : {})
 });
 
-const toGist = (g: GistResponse): Gist => ({
-  createdAt: new Intl.DateTimeFormat(env.language, {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  }).format(new Date(g.created_at)),
-  description: g.description || '',
-  fileCount: Object.keys(g.files).length,
-  files: Object.fromEntries(
-    definedGistFileEntries(g.files).map(([key, file]) => [
-      key,
-      normalizeGistFile(file)
-    ])
-  ),
-  id: g.id,
-  name: g.description || Object.keys(g.files)[0] || '',
-  public: g.public,
-  updatedAt: new Intl.DateTimeFormat(env.language, {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  }).format(new Date(g.updated_at)),
-  url: g.html_url || g.url || ''
-});
+const markContentLoaded = (file: GistFile, content: string): GistFile => {
+  const loadedFile = { ...file, content };
+  delete loadedFile.contentLoaded;
 
-const formatGist = (gist: unknown): Gist => {
+  return loadedFile;
+};
+
+const hydrateGistFile = async (file: ApiGistFile): Promise<GistFile> => {
+  if (typeof file.content === 'string') {
+    return normalizeGistFile(file);
+  }
+
+  if (typeof file.raw_url !== 'string') {
+    return normalizeGistFile(file);
+  }
+
+  const response = await gists.raw(file.raw_url);
+  const normalized = normalizeGistFile(file);
+
+  return typeof response.data === 'string'
+    ? markContentLoaded(normalized, response.data)
+    : normalized;
+};
+
+const toGist = async (g: GistResponse, hydrate = false): Promise<Gist> => {
+  const fileEntries = hydrate
+    ? await Promise.all(
+        definedGistFileEntries(g.files).map(async ([key, file]) => [
+          key,
+          await hydrateGistFile(file)
+        ])
+      )
+    : definedGistFileEntries(g.files).map(([key, file]) => [
+        key,
+        normalizeGistFile(file)
+      ]);
+
+  return {
+    createdAt: new Intl.DateTimeFormat(env.language, {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    }).format(new Date(g.created_at)),
+    description: g.description || '',
+    fileCount: Object.keys(g.files).length,
+    files: Object.fromEntries(fileEntries),
+    id: g.id,
+    name: g.description || Object.keys(g.files)[0] || '',
+    public: g.public,
+    updatedAt: new Intl.DateTimeFormat(env.language, {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    }).format(new Date(g.updated_at)),
+    url: g.html_url || g.url || ''
+  };
+};
+
+const formatGist = async (gist: unknown, hydrate = false): Promise<Gist> => {
   if (!isGistResponse(gist)) {
     throw new Error('Invalid gist payload');
   }
 
-  return toGist(gist);
+  return toGist(gist, hydrate);
 };
 
-const formatGists = (gistList: GistsResponse): Gist[] =>
-  gistList.map(formatGist);
+const formatGists = (gistList: GistsResponse): Promise<Gist[]> =>
+  Promise.all(gistList.map((gist) => formatGist(gist)));
 
 const toGistsResponse = (value: unknown): GistsResponse => {
   if (!Array.isArray(value)) {
@@ -156,22 +190,39 @@ const getGist = async (id: string): Promise<Gist> => {
   try {
     const results = await gists.get({ gist_id: id });
 
-    return formatGist(results.data);
+    return formatGist(results.data, true);
   } catch (err) {
     throw prepareError(err as Error);
   }
 };
+
+const listGistPage = (starred: boolean, page: number) =>
+  gists[starred ? 'listStarred' : 'list']({
+    page,
+    per_page: GISTS_PER_PAGE
+  });
 
 /**
  * Get a list of gists
  */
 const getGists = async (starred = false): Promise<Gist[]> => {
   try {
-    const results = await gists[starred ? 'listStarred' : 'list']({
-      per_page: GISTS_PER_PAGE
-    });
+    const pages: GistResponse[] = [];
+    let page = 1;
 
-    return formatGists(toGistsResponse(results.data));
+    while (true) {
+      const results = await listGistPage(starred, page);
+      const pageData = toGistsResponse(results.data);
+      pages.push(...pageData);
+
+      if (pageData.length < GISTS_PER_PAGE) {
+        break;
+      }
+
+      page += 1;
+    }
+
+    return formatGists(pages);
   } catch (err) {
     throw prepareError(err as Error);
   }
@@ -197,10 +248,14 @@ const updateGist = async (
   }
 };
 
-const configure = (options: { key: string; url: string }): void => {
+const configure = (options: GistServiceOptions): void => {
   const key = options.key || '';
   const url = options.url || GISTS_BASE_URL;
-  gists.configure({ key, url });
+  gists.configure({
+    key,
+    rejectUnauthorized: options.rejectUnauthorized,
+    url
+  });
 };
 
 const createGist = async (
@@ -233,9 +288,9 @@ const deleteGist = async (id: string): Promise<void> => {
 const deleteFile = async (id: string, filename: string): Promise<void> => {
   try {
     await gists.update({
-      files: { [filename]: { content: '' } },
+      files: { [filename]: null },
       gist_id: id
-    });
+    } as unknown as Parameters<typeof gists.update>[0]);
   } catch (err) {
     throw prepareError(err as Error);
   }

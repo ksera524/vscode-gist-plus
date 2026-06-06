@@ -130,6 +130,7 @@
   "scripts": {
     "compile": "tsc -p tsconfig.prod.json --noEmit && node ./scripts/build-extension.mjs",
     "lint": "eslint src",
+    "package:vsix": "vsce package --no-dependencies",
     "prettier": "prettier --config .prettierrc.json --list-different 'src/**/*.ts'",
     "release": "standard-version",
     "test:integration": "npm run compile && node ./scripts/run-integration-tests.js",

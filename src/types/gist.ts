@@ -1,5 +1,6 @@
 interface GistFile {
   content: string;
+  contentLoaded?: boolean;
   filename?: string;
   language?: string;
   raw_url?: string;
