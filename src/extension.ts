@@ -17,6 +17,7 @@ import { init as initListeners } from './listeners/index.js';
 import { Levels, logger } from './logger/index.js';
 import { extensionMigrations, migrations } from './migrations/index.js';
 import { profiles } from './profiles/index.js';
+import { resetState } from './reset-state.js';
 
 const disposables: { commands: Disposable[]; listeners: Disposable[] } = {
   commands: [],
@@ -61,15 +62,7 @@ export function activate(context: ExtensionContext): void {
    */
   const resetStateCommand = commands.registerCommand(
     'extension.resetState',
-    async () => {
-      context.globalState.update('gisttoken', undefined);
-      context.globalState.update('gist_provider', undefined);
-      await profiles.reset();
-      context.globalState.update('migrations', undefined);
-
-      commands.executeCommand(StatusBarCommands.Update);
-      commands.executeCommand(GistCommands.UpdateAccessKey);
-    }
+    () => resetState(context)
   );
   disposables.commands.push(resetStateCommand);
 
@@ -85,13 +78,13 @@ export function activate(context: ExtensionContext): void {
     .catch((err: Error) => {
       logger.error(err.message);
     })
-    .finally(() => {
-      commands.executeCommand(StatusBarCommands.Update);
-      commands.executeCommand(GistCommands.UpdateAccessKey);
+    .finally(async () => {
+      await commands.executeCommand(StatusBarCommands.Update);
+      await commands.executeCommand(GistCommands.UpdateAccessKey);
 
       if (previousVersion !== currentVersion) {
         // TODO: show what's new
-        context.globalState.update('version', currentVersion);
+        await context.globalState.update('version', currentVersion);
       }
     });
 }

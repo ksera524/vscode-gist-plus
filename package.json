@@ -102,6 +102,16 @@
         "command": "extension.profile.select",
         "title": "Select Profile",
         "category": "GIST"
+      },
+      {
+        "command": "extension.profile.create",
+        "title": "Create Profile",
+        "category": "GIST"
+      },
+      {
+        "command": "extension.resetState",
+        "title": "Reset Extension State",
+        "category": "GIST"
       }
     ],
     "keybindings": [
@@ -136,7 +146,7 @@
     "release:bump": "standard-version",
     "release:github": "node ./scripts/create-github-release.mjs",
     "release:push": "git push origin develop --follow-tags",
-    "release:vscode": "node ./scripts/publish-vscode-marketplace.mjs",
+    "release:vscode": "node ./scripts/publish-vscode-marketplace.mjs --skip-duplicate",
     "test:integration": "npm run compile && node ./scripts/run-integration-tests.js",
     "test:unit": "vitest run --coverage --silent",
     "test:watch": "vitest",
@@ -152,8 +162,9 @@
     "@typescript-eslint/parser": "^8.59.3",
     "@vitest/coverage-v8": "^4.1.6",
     "@vscode/test-electron": "^2.5.2",
-    "eslint": "^10.3.0",
+    "@vscode/vsce": "^3.9.2",
     "esbuild": "^0.28.0",
+    "eslint": "^10.3.0",
     "fast-check": "^4.8.0",
     "prettier": "^3.8.3",
     "standard-version": "^9.5.0",

@@ -15,6 +15,26 @@ Please do not present this project as the original upstream; keep attribution to
 
 # Maintaining
 
+## Release
+
+Run the full release flow from a clean `develop` branch:
+
+```
+npm run release
+```
+
+This runs tests, bumps the version with `standard-version`, creates the VSIX, pushes the release commit and tag, creates the GitHub Release, and publishes the VSIX to the VS Code Marketplace.
+
+Individual release steps are also available:
+
+```
+npm run release:bump
+npm run package:vsix
+npm run release:push
+npm run release:github
+npm run release:vscode
+```
+
 ## Compiling
 
 There's no need to manually compile. The launch tasks trigger the 'compile' script from the package.json file which continuously watches TypeScript files for changes.

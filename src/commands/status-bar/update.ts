@@ -6,7 +6,7 @@ const update: CommandInitializer = (
   _config: Configuration,
   services: Services,
   _utils: Utils
-): [Command, CommandFn] => {
+): CommandRegistration => {
   const { logger, profiles } = services;
 
   const statusBar = window.createStatusBarItem(StatusBarAlignment.Left);
@@ -31,7 +31,7 @@ const update: CommandInitializer = (
     }
   };
 
-  return [command, commandFn];
+  return [command, commandFn, [statusBar]];
 };
 
 export { update };
