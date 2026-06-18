@@ -32,10 +32,11 @@ const create: CommandInitializer = (
 
       const { title } = platform as MessageItem;
 
-      const url =
+      const urlInput =
         title === 'GitHub Enterprise'
           ? await utils.input.prompt('Enter your enterprise API url')
           : 'https://api.github.com';
+      const url = urlInput && urlInput.trim();
 
       if (!url) {
         logger.debug('User Aborted Create Profile at "url"');
@@ -43,9 +44,10 @@ const create: CommandInitializer = (
         return;
       }
 
-      const key = await utils.input.prompt('Enter your access token', '', {
+      const keyInput = await utils.input.prompt('Enter your access token', '', {
         password: true
       });
+      const key = keyInput && keyInput.trim();
 
       if (!key) {
         logger.debug('User Aborted Create Profile at "key"');
@@ -53,7 +55,8 @@ const create: CommandInitializer = (
         return;
       }
 
-      const name = await utils.input.prompt('Give this profile a name');
+      const nameInput = await utils.input.prompt('Give this profile a name');
+      const name = nameInput && nameInput.trim();
 
       if (!name) {
         logger.debug('User Aborted Create Profile at "name"');

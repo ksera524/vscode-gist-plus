@@ -63,6 +63,52 @@ describe('create profile', () => {
     );
   });
 
+  test('should trim profile fields before saving', async () => {
+    expect.assertions(1);
+
+    showInformationMessageSpy.mockImplementationOnce(
+      (_prompt: string, _options: object, ...items: any[]) => {
+        const item = items[items.length - 1];
+
+        return Promise.resolve(item);
+      }
+    );
+    (utilsMock.input.prompt as jest.Mock).mockResolvedValueOnce(' test url ');
+    (utilsMock.input.prompt as jest.Mock).mockResolvedValueOnce(' test key ');
+    (utilsMock.input.prompt as jest.Mock).mockResolvedValueOnce(' test name ');
+
+    await createFn();
+
+    expect(addMock).toHaveBeenCalledWith(
+      'test name',
+      'test key',
+      'test url',
+      true
+    );
+  });
+
+  test('should reject blank names after trimming', async () => {
+    expect.assertions(2);
+
+    showInformationMessageSpy.mockImplementationOnce(
+      (_prompt: string, _options: object, ...items: any[]) => {
+        const item = items[items.length - 1];
+
+        return Promise.resolve(item);
+      }
+    );
+    (utilsMock.input.prompt as jest.Mock).mockResolvedValueOnce('test url');
+    (utilsMock.input.prompt as jest.Mock).mockResolvedValueOnce('test key');
+    (utilsMock.input.prompt as jest.Mock).mockResolvedValueOnce('   ');
+
+    await createFn();
+
+    expect(addMock).not.toHaveBeenCalled();
+    expect(debugMock).toHaveBeenCalledWith(
+      'User Aborted Create Profile at "name"'
+    );
+  });
+
   test('when platform selection is cancelled do not throw or log an error', async () => {
     expect.assertions(2);
     showInformationMessageSpy.mockResolvedValueOnce(undefined);

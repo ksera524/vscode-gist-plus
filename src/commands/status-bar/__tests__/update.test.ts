@@ -5,6 +5,7 @@ import { update } from '../update.js';
 const createStatusBarItem = jest.spyOn(window, 'createStatusBarItem');
 const createStatusBarItemMock = {
   command: '',
+  dispose: jest.fn(),
   show: jest.fn(),
   text: ''
 };
@@ -55,5 +56,20 @@ describe('update status bar', () => {
     expect(createStatusBarItemMock.command).toStrictEqual(
       'extension.profile.create'
     );
+  });
+
+  test('should return status bar item as an extra disposable', () => {
+    expect.assertions(1);
+
+    const registration = update(
+      { get: jest.fn() },
+      {
+        logger: { debug: debugMock, error: errorMock },
+        profiles: { get: getMock }
+      } as Services,
+      utilsMock
+    );
+
+    expect(registration[2]).toStrictEqual([createStatusBarItemMock]);
   });
 });

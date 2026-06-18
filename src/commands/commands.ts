@@ -27,12 +27,16 @@ const toCommandRegistration = (
   config: Configuration,
   services: Services,
   commandInit: CommandInitializer
-): [Command, CommandFn] => commandInit(config, services, utils);
+): CommandRegistration => commandInit(config, services, utils);
 
-const registerCommand = ([command, commandFn]: [
-  Command,
-  CommandFn
-]): Disposable => commands.registerCommand(command, commandFn);
+const registerCommand = ([
+  command,
+  commandFn,
+  extraDisposables = []
+]: CommandRegistration): Disposable[] => [
+  commands.registerCommand(command, commandFn),
+  ...extraDisposables
+];
 
 const init = (
   config: Configuration,
@@ -42,11 +46,11 @@ const init = (
   const { logger } = services;
   const registered = initializers
     .map((initializer) => toCommandRegistration(config, services, initializer))
-    .map(registerCommand);
+    .flatMap(registerCommand);
 
   logger.debug('initializing commands');
 
-  return { commandCount: registered.length, commands: registered };
+  return { commandCount: initializers.length, commands: registered };
 };
 
 export { init, toCommandRegistration };

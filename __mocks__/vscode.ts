@@ -40,6 +40,7 @@ export const window = {
   createStatusBarItem: jest.fn(),
   showErrorMessage: jest.fn(),
   showInformationMessage: jest.fn(),
+  showWarningMessage: jest.fn(),
   showInputBox: jest.fn(),
   showQuickPick: jest.fn(),
   showTextDocument: jest.fn()

@@ -32,6 +32,13 @@ const deleteCommand: CommandInitializer = (
       }
       const { id } = utils.files.extractTextDocumentDetails(doc);
       if (id) {
+        const canDelete =
+          (await utils.input.prompt('Enter "DELETE" to confirm')) === 'DELETE';
+        if (!canDelete) {
+          logger.info('User Aborted Deletion');
+
+          return;
+        }
         logger.info(`Deleting Gist "${id}"`);
         await gists.deleteGist(id);
         closeGistEditors(id);
